@@ -1,0 +1,8 @@
+model,routing,newsite_r2,newsite_std,random_r2,folds
+XGBoost,+cat,0.4815,0.0789,0.8096,"[0.429, 0.373, 0.536, 0.598, 0.472]"
+RandomForest,+cat,0.5293,0.0817,0.7342,"[0.474, 0.549, 0.421, 0.664, 0.539]"
+LightGBM,+cat,0.4692,0.091,0.8002,"[0.476, 0.347, 0.396, 0.605, 0.522]"
+CatBoost,+cat,0.4654,0.0705,0.7824,"[0.419, 0.415, 0.409, 0.593, 0.491]"
+XGBoost(blind),blind,0.3159,0.2241,,"[0.192, 0.029, 0.707, 0.309, 0.343]"
+LightGBM-conformal90,+cat,,,,coverage=74.8% width=27.3
+paired_blind_vs_cat,XGBoost,,,,"meanRMSEred=1.6 CI[0.398,2.924] 26/39 significant (CI excludes 0)"

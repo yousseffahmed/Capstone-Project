@@ -1,0 +1,115 @@
+{
+  "cases": [
+    {
+      "site": "site_135",
+      "date": "2020-05-31",
+      "site_latitude": 0.305629,
+      "site_longitude": 32.516433,
+      "month": 5,
+      "day_of_week": 6,
+      "temp_2m_K": 295.64,
+      "dewpoint_2m_K": 291.78,
+      "wind_u_10m_ms": -0.074,
+      "wind_v_10m_ms": 1.275,
+      "surface_pressure_Pa": 88591.0,
+      "precipitation_m": 0.000526,
+      "rel_humidity": 78.8,
+      "wind_speed": 1.277,
+      "dist_major_road_m": 89.0,
+      "road_len_all_300m": 3524.9,
+      "road_len_all_1000m": 31578.6,
+      "road_len_major_500m": 4171.1,
+      "elevation_m": 1168.0,
+      "category": 0,
+      "category_label": "low-pollution / well-ventilated",
+      "actual_pm25": 23.8,
+      "actual_tier": "Elevated",
+      "model_zero_deploy": {
+        "ugm3": 35.8,
+        "tier": "High",
+        "band": [
+          15.0,
+          56.0
+        ],
+        "danger_dial_45": "ok"
+      }
+    },
+    {
+      "site": "site_54",
+      "date": "2020-01-14",
+      "site_latitude": 0.351927,
+      "site_longitude": 32.572594,
+      "month": 1,
+      "day_of_week": 1,
+      "temp_2m_K": 295.82,
+      "dewpoint_2m_K": 290.87,
+      "wind_u_10m_ms": -0.721,
+      "wind_v_10m_ms": -1.594,
+      "surface_pressure_Pa": 88294.0,
+      "precipitation_m": 1e-06,
+      "rel_humidity": 73.6,
+      "wind_speed": 1.749,
+      "dist_major_road_m": 60.3,
+      "road_len_all_300m": 5821.7,
+      "road_len_all_1000m": 53455.9,
+      "road_len_major_500m": 5390.8,
+      "elevation_m": 1171.0,
+      "category": 1,
+      "category_label": "high-pollution / well-ventilated",
+      "actual_pm25": 129.7,
+      "actual_tier": "Dangerous",
+      "model_zero_deploy": {
+        "ugm3": 83.8,
+        "tier": "Dangerous",
+        "band": [
+          63.0,
+          104.0
+        ],
+        "danger_dial_45": "ALERT"
+      }
+    },
+    {
+      "site": "site_26",
+      "date": "2020-04-01",
+      "site_latitude": 0.317725,
+      "site_longitude": 32.592509,
+      "month": 4,
+      "day_of_week": 2,
+      "temp_2m_K": 296.77,
+      "dewpoint_2m_K": 293.27,
+      "wind_u_10m_ms": -0.017,
+      "wind_v_10m_ms": 2.283,
+      "surface_pressure_Pa": 88368.0,
+      "precipitation_m": 0.000553,
+      "rel_humidity": 80.7,
+      "wind_speed": 2.283,
+      "dist_major_road_m": 1.1,
+      "road_len_all_300m": 8839.2,
+      "road_len_all_1000m": 59681.3,
+      "road_len_major_500m": 5706.1,
+      "elevation_m": 1157.0,
+      "category": 0,
+      "category_label": "low-pollution / well-ventilated",
+      "actual_pm25": 22.8,
+      "actual_tier": "Elevated",
+      "model_zero_deploy": {
+        "ugm3": 40.6,
+        "tier": "High",
+        "band": [
+          20.0,
+          61.0
+        ],
+        "danger_dial_45": "ok"
+      }
+    }
+  ],
+  "edges": [
+    35.4,
+    55.4
+  ],
+  "tiers": [
+    "Elevated",
+    "High",
+    "Dangerous"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "blind_acc_geodata_only": 0.5384615384615384,
+  "blind_acc_best": 0.6410256410256411,
+  "blind_best_config": "('geodata only (5) \u2014 4th-cap blind', 'kNN')",
+  "site54_true_cat": 1,
+  "site54_geodata_pred": 0,
+  "best_level_signal": "dist_major_road_m",
+  "best_level_corr": -0.35228556610575507
+}

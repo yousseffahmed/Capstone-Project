@@ -1,0 +1,4 @@
+cluster,n_sites,pm25_mean,pm25_std,pm25_p90,pm25_season_amp,temp_mean,humidity_mean,windspeed_mean,precip_mean,n_days,label
+0,24,31.71,13.19,48.7,29.58,22.23,80.83,1.62,0.84,339.38,low-pollution / well-ventilated
+1,12,47.53,19.67,73.37,46.02,22.16,80.8,1.58,0.81,395.17,high-pollution / well-ventilated
+2,3,46.55,20.22,73.46,42.35,21.34,86.06,1.15,1.02,352.33,moderate-pollution / stagnant

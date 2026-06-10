@@ -1,0 +1,4 @@
+method,coverage_pct,mean_width
+naive_rows,79.8,28.3
+group_sites,85.8,42.6
+mondrian_cat,80.8,32.2

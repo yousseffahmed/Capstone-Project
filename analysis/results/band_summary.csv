@@ -1,0 +1,10 @@
+metric,test,bands,exact_band,within_one_band,baseline,danger_recall,note
+NOW new-site (+cat+ext k4),leave-sites-out,EPA 3-tier,0.680,0.985,0.523 majority,0.51,bottleneck reframed - deployable triage
+NOW new-site (+cat k4 deploy-only),leave-sites-out,EPA 3-tier,0.670,0.981,0.523 majority,0.49,no geodata needed
+FUTURE +1d,chronological,EPA 3-tier,0.702,0.983,0.681 persistence,0.54,
+FUTURE +3d,chronological,EPA 3-tier,0.690,0.985,0.618 persistence,0.55,
+FUTURE +7d,chronological,EPA 3-tier,0.677,0.983,0.635 persistence,0.52,
+NOW danger-recall cutoff=50,leave-sites-out,binary danger,,,,0.67,false-alarm 8%
+NOW danger-recall cutoff=45,leave-sites-out,binary danger,,,,0.80,false-alarm 17% (suggested op-point)
+NOW danger-recall cutoff=40,leave-sites-out,binary danger,,,,0.91,false-alarm 30%
+NOW danger-recall weighted-classifier,leave-sites-out,binary danger,,,,0.58,KILLED - worse than thresholding regressor at same FAR

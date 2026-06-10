@@ -1,0 +1,18 @@
+rung,variant,r2,note
+1_random,blind,0.8078,10-seed mean
+1_random,+cat,0.808,10-seed mean
+1_random,+cat+prior,0.7719,10-seed mean
+1_random,moe,0.7707,10-seed mean
+2A_newsite_fullsig,blind,0.3159,"folds=[0.192, 0.029, 0.707, 0.309, 0.343]"
+2A_newsite_fullsig,+cat,0.4815,"folds=[0.429, 0.373, 0.536, 0.598, 0.472]"
+2A_newsite_fullsig,+cat+prior,0.4829,"folds=[0.464, 0.336, 0.487, 0.617, 0.51]"
+2A_newsite_fullsig,moe,0.4974,"folds=[0.524, 0.38, 0.372, 0.64, 0.571]"
+2B_diag,cat_recovery,0.5897,frac sites whose 60-day-window category == full-signature category
+2B_newsite_window,blind,0.3093,"folds=[0.228, -0.013, 0.715, 0.323, 0.293]"
+2B_newsite_window,+cat,0.4328,"folds=[0.401, 0.335, 0.587, 0.516, 0.325]"
+2B_newsite_window,+cat+prior,0.3632,"folds=[0.289, 0.2, 0.526, 0.453, 0.349]"
+2B_newsite_window,moe,0.2976,"folds=[0.057, 0.117, 0.392, 0.537, 0.385]"
+3_leavecatout,blind,-0.3033,"per-cat=[-0.594, -0.086, -0.23]"
+3_leavecatout,+cat,-0.2172,"per-cat=[-0.618, 0.049, -0.083]"
+3_leavecatout,+cat+prior,-0.413,"per-cat=[-1.039, -0.177, -0.023]"
+3_leavecatout,moe,-0.4045,"per-cat=[-1.024, -0.2, 0.011]"

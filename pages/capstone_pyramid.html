@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Pyramid View — Kampala PM2.5 Capstone</title>
+<style>
+  :root{ --navy:#0D1B2A; --card:#122030; --teal:#14A38B; --amber:#E8A020; --t1:#E8F0EE; --t2:#9FB3BE; --border:#243244; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; background:var(--navy); font-family:-apple-system,Segoe UI,Roboto,Calibri,sans-serif; }
+  .gnav{ position:fixed; top:0; left:0; right:0; height:40px; z-index:20; display:flex; gap:3px; align-items:center; overflow-x:auto;
+         background:#0b1825; border-bottom:1px solid var(--border); padding:0 14px; }
+  .gnav .brand{ font-weight:800; color:var(--teal); margin-right:8px; font-size:13px; text-decoration:none; white-space:nowrap; }
+  .gnav a{ color:var(--t2); text-decoration:none; font-weight:700; font-size:12.5px; padding:6px 10px; border-radius:8px; white-space:nowrap; }
+  .gnav a:hover{ background:#16263a; color:var(--t1); } .gnav a.active{ background:rgba(20,163,139,.22); color:#fff; }
+  .gnav .sp{ flex:1; } .gnav .ext{ color:#6b7f8b; font-weight:600; font-size:11.5px; }
+  #bar{ position:fixed; top:40px; left:0; right:0; height:54px; background:linear-gradient(180deg,#0e1d2e,#0b1825);
+        border-bottom:1px solid var(--border); display:flex; align-items:center; gap:14px; padding:0 18px; z-index:10; }
+  #bar .brand{ color:var(--t1); font-weight:800; font-size:14px; letter-spacing:.01em; white-space:nowrap; }
+  #bar .brand small{ color:var(--t2); font-weight:600; font-size:11px; margin-left:8px; }
+  #bar .spacer{ flex:1; }
+  .btn{ appearance:none; cursor:pointer; border:1px solid var(--border); background:var(--card); color:var(--t2);
+        border-radius:9px; padding:8px 15px; font-size:12.5px; font-weight:700; font-family:inherit; display:flex; flex-direction:column; line-height:1.15; min-width:122px; }
+  .btn small{ font-weight:600; font-size:10px; opacity:.8; margin-top:2px; }
+  .btn:hover{ border-color:var(--teal); color:var(--t1); }
+  .btn.active{ background:color-mix(in srgb,var(--teal) 18%,transparent); border-color:var(--teal); color:#fff; }
+  .btn.active.amberon{ background:color-mix(in srgb,var(--amber) 18%,transparent); border-color:var(--amber); }
+  #frame{ position:fixed; top:94px; left:0; right:0; bottom:0; width:100%; height:calc(100% - 94px); border:0; background:var(--navy); }
+</style>
+</head>
+<body>
+  <nav class="gnav" id="gnav"><a class="brand" data-nav="start" target="_top">◆ Kampala PM2.5</a><a data-nav="start" target="_top">🏠 Start</a><a data-nav="tool" target="_top">🎯 Tool</a><a data-nav="views" target="_top">📚 Views</a><a data-nav="findings" target="_top">🔬 Findings</a><a data-nav="report" target="_top">📄 Report</a><a data-nav="log" target="_top">🧾 Log</a><span class="sp"></span><a class="ext" data-nav="deck" target="_top">🖥 Deck</a></nav>
+  <script>(function(){var inP=location.pathname.indexOf("/pages/")>=0;var P=inP?"":"pages/",R=inP?"../":"";var H={start:R+"index.html",tool:P+"kampala_planner_prototype.html",views:P+"capstone_pyramid.html",findings:P+"FINDINGS.html",report:P+"FINAL_REPORT.html",log:P+"DECISION_LOG.html",deck:R+"docs/capstone_presentation_v2.pdf"};var cur=(location.pathname.split("/").pop()||"index.html").toLowerCase();document.querySelectorAll("#gnav a[data-nav]").forEach(function(a){var k=a.getAttribute("data-nav");a.setAttribute("href",H[k]);if(!a.classList.contains("brand")&&H[k].split("/").pop().toLowerCase()===cur)a.classList.add("active");});})();</script>
+  <div id="bar">
+    <div class="brand">The Pyramid View <small>Kampala PM2.5 · Smart City Capstone</small></div>
+    <div class="spacer"></div>
+    <button class="btn active" id="b-cons" onclick="show('consolidated')">📚 Consolidated<small>the road behind · A → now</small></button>
+    <button class="btn" id="b-four" onclick="show('session')">④ Fourth Index<small>the delta · what changed</small></button>
+    <button class="btn" id="b-fore" onclick="show('forecast')">🔮 Forecast<small>the road ahead · now → Z</small></button>
+    <button class="btn" id="b-pred" onclick="show('predictor')">🎯 Predictor<small>the tool · point at any site</small></button>
+  </div>
+  <iframe id="frame" src="index_consolidated.html" title="Pyramid View"></iframe>
+<script>
+  var SRC = { consolidated:"index_consolidated.html", session:"index_session.html", forecast:"index_forecast.html", predictor:"index_predictor.html" };
+  var BTN = { consolidated:"b-cons", session:"b-four", forecast:"b-fore", predictor:"b-pred" };
+  function show(which){
+    document.getElementById('frame').src = SRC[which];
+    for(var k in BTN){
+      var el = document.getElementById(BTN[k]);
+      el.classList.toggle('active', k===which);
+      el.classList.toggle('amberon', (k===which) && (k==='session' || k==='forecast' || k==='predictor'));
+    }
+  }
+</script>
+</body>
+</html>

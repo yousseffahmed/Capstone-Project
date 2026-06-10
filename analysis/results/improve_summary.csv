@@ -1,0 +1,14 @@
+metric,setup,honest_test,score,note
+NOW,"+cat (k=3, deploy only)",leave-sites-out,0.47,4th-cap baseline
+NOW,"+cat (k=4, deploy only)",leave-sites-out,0.558,THIS ROUND: significant +1.07 ug/m3 vs k=3
+NOW,"+cat (k=4, fold-safe)",leave-sites-out,0.563,centroids on train sites only -> not a leak
+NOW,+cat+external (k=3),leave-sites-out,0.541,4th-cap best
+NOW,"+cat+external (k=4, LightGBM)",leave-sites-out,0.561,best single this round
+NOW,"+cat+external (k=4, stacked rf+xgb+lgb)",leave-sites-out,0.564,+0.003 vs single = within noise
+NOW,+cat+external (k=6),leave-sites-out,0.585,"best abs but singleton cluster -> fragile, not recommended"
+UNCERTAINTY,naive split-conformal (rows),new-site 90% target,0.798,under-covers (baseline ~0.748)
+UNCERTAINTY,group conformal (held-out sites),new-site 90% target,0.858,"THIS ROUND: +6pp coverage, width 28->43"
+UNCERTAINTY,mondrian per-category conformal,new-site 90% target,0.808,modest
+FUTURE,LSTM baseline (best),purged chronological +1d,0.506,"kept: tuning bigger=worse, ensemble=no gain"
+FUTURE,LSTM 2-layer hidden64 (tuned up),purged chronological +1d,0.465,WORSE - small data favors simple net
+FUTURE,LSTM+GBM 50/50 ensemble,purged chronological mean,,mean dR2 +0.001 vs LSTM = no real gain

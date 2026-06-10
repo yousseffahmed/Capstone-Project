@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Pyramid View — Smart City Capstone · Kampala PM2.5</title>
+<style>
+  .gnav{position:sticky;top:0;z-index:200;display:flex;gap:3px;flex-wrap:wrap;align-items:center;background:#0b1825;border-bottom:1px solid #243244;padding:7px 14px;font-family:-apple-system,Segoe UI,Roboto,Calibri,sans-serif}
+  .gnav .brand{font-weight:800;color:#14A38B;margin-right:8px;font-size:13px;text-decoration:none}
+  .gnav a{color:#9FB3BE;text-decoration:none;font-weight:700;font-size:12.5px;padding:6px 10px;border-radius:8px;white-space:nowrap}
+  .gnav a:hover{background:#16263a;color:#E8F0EE} .gnav a.active{background:rgba(20,163,139,.22);color:#fff}
+  .gnav .sp{flex:1} .gnav .ext{color:#6b7f8b;font-weight:600;font-size:11.5px}
+  :root{
+    --s0:#5a9fe0; --s1:#36b4c8; --s2:#2fbf9b; --s3:#5fc56a;
+    --s4:#c6c14e; --s5:#e6a83f; --s6:#ec7a52; --s7:#ffce5a;
+    --good:#46c98a; --bad:#ec5a4c; --warn:#e3b34e;
+    --font:'Segoe UI', system-ui, -apple-system, sans-serif;
+    --mono:'SF Mono', Consolas, 'Roboto Mono', monospace;
+  }
+  body[data-theme="lakehouse"]{
+    --bg:#0e1016; --surface:#161a22; --surface2:#1b212c; --surface3:#202736;
+    --border:#242b38; --border2:#313a4b; --t1:#f1eee6; --t2:#c3cad6; --t3:#7a838f;
+    --code-bg:#0a0c12; --scrim:rgba(6,8,12,.7); --shadow:rgba(0,0,0,.5);
+  }
+  body[data-theme="graphite"]{
+    --bg:#23262d; --surface:#2b2f38; --surface2:#323742; --surface3:#3a404c;
+    --border:#3b424e; --border2:#4a5260; --t1:#f4f6f8; --t2:#ccd3db; --t3:#868f9b;
+    --code-bg:#1b1e25; --scrim:rgba(15,17,21,.66); --shadow:rgba(0,0,0,.4);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--t2);font-family:var(--font);font-size:14px;line-height:1.5;
+       -webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background-color .28s ease,color .2s ease}
+  .wrap{max-width:1240px;margin:0 auto;padding:20px 22px 80px}
+  .term{border-bottom:1px dotted var(--t3);cursor:help} .term:hover{border-bottom-color:var(--s5);color:var(--t1)}
+
+  header{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:8px}
+  .mark{width:50px;height:50px;flex:0 0 auto;border-radius:12px;overflow:hidden;background:linear-gradient(160deg,var(--s0),var(--s2) 38%,var(--s5) 70%,var(--s7));display:flex;align-items:flex-end;justify-content:center}
+  .mark svg{width:30px;height:30px;margin-bottom:7px}
+  .htext{flex:1 1 auto;min-width:260px}
+  .eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.13em;background:linear-gradient(90deg,var(--s0),var(--s2),var(--s5),var(--s7));-webkit-background-clip:text;background-clip:text;color:transparent}
+  h1{color:var(--t1);font-size:23px;font-weight:700;letter-spacing:.2px;margin-top:3px}
+  .htext .sub{color:var(--t3);font-size:12.5px;margin-top:5px;max-width:780px;line-height:1.5}
+  .themebar{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
+  .tb-lab{font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);font-weight:700}
+  .tchip{display:inline-flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:4px 13px 4px 6px;cursor:pointer;font-size:11.5px;font-weight:600;color:var(--t2);transition:.15s}
+  .tchip:hover{border-color:var(--t3)} .tchip.on{border-color:var(--s2);color:var(--t1);box-shadow:0 0 0 1px var(--s2) inset}
+  .tchip .sw{display:inline-flex;gap:2px} .tchip .sw b{width:9px;height:9px;border-radius:50%;display:block;border:1px solid rgba(128,128,128,.28)}
+
+  .legend{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:14px 0 6px;padding:9px 15px;background:var(--surface);border:1px solid var(--border);border-radius:9px;font-size:11.5px;color:var(--t2)}
+  .legend b{color:var(--t1)} .legend .k{display:inline-flex;align-items:center;gap:6px}
+  .legend .dirdown{color:var(--s0);font-weight:800} .legend .dirright{color:var(--s5);font-weight:800}
+  .legend .gloss-btn{margin-left:auto;font-size:11px;color:var(--s5);background:color-mix(in srgb,var(--s5) 12%,transparent);border:1px solid color-mix(in srgb,var(--s5) 40%,transparent);padding:5px 11px;border-radius:18px;cursor:pointer;font-weight:700}
+
+  .frame{display:flex;gap:14px;margin-top:14px}
+  .rail{flex:0 0 60px;display:flex;flex-direction:column;align-items:center;padding-top:6px}
+  .rail .cap-b,.rail .cap-t{font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;text-align:center;line-height:1.3}
+  .rail .cap-b{color:var(--s0)} .rail .cap-t{color:var(--s7)}
+  .rail .spine{flex:1;width:4px;margin:8px 0;border-radius:3px;background:linear-gradient(180deg,var(--s0),var(--s1),var(--s2),var(--s3),var(--s4),var(--s5),var(--s6),var(--s7))}
+  .rail .arr{font-size:13px;line-height:1} .rail .arr.d{color:var(--s0)}
+  .stack{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:0}
+  .barwrap{width:100%;display:flex;flex-direction:column;align-items:center}
+  .bar{display:flex;gap:3px;align-items:stretch;min-height:50px;width:100%}
+  .seg{position:relative;flex:1 1 0;min-width:0;display:flex;flex-direction:column;justify-content:center;padding:7px 19px 7px 25px;cursor:pointer;background:color-mix(in srgb,var(--hue) 15%,var(--surface));clip-path:polygon(0 0,calc(100% - 13px) 0,100% 50%,calc(100% - 13px) 100%,0 100%,13px 50%);transition:background .15s ease, filter .15s ease}
+  .seg:hover{background:color-mix(in srgb,var(--hue) 30%,var(--surface));filter:brightness(1.05)}
+  .seg.cap{flex:0 0 162px;cursor:default;padding-left:18px;background:color-mix(in srgb,var(--hue) 34%,var(--surface));clip-path:polygon(0 0,calc(100% - 13px) 0,100% 50%,calc(100% - 13px) 100%,0 100%)}
+  .seg.last{clip-path:polygon(0 0,100% 0,100% 100%,0 100%,13px 50%)}
+  .seg .st{font-size:12px;font-weight:700;color:var(--t1);line-height:1.18}
+  .seg .sb{font-size:10px;color:var(--t2);line-height:1.2;margin-top:2px;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .seg .cn{font-size:9px;letter-spacing:.11em;text-transform:uppercase;font-weight:800;color:var(--hue)}
+  .seg .ct{font-size:13px;font-weight:800;color:var(--t1);line-height:1.15;margin-top:1px}
+  .seg .more{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--hue);opacity:0;transition:.15s;font-weight:800}
+  .seg:hover .more{opacity:1}
+  .conn{height:15px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--t3)}
+
+  #tip{position:fixed;z-index:200;max-width:300px;background:var(--surface3);border:1px solid var(--s5);border-radius:9px;padding:10px 12px;display:none;box-shadow:0 12px 34px var(--shadow)}
+  #tip b{display:block;color:var(--s5);font-size:12.5px;margin-bottom:3px} #tip span{display:block;color:var(--t2);font-size:12px;line-height:1.45}
+
+  /* ===== stacked nested panels ===== */
+  .scrim{position:fixed;inset:0;background:var(--scrim);opacity:0;pointer-events:none;transition:.25s;z-index:90}
+  .scrim.on{opacity:1;pointer-events:auto}
+  .panels{position:fixed;inset:0;z-index:100;pointer-events:none}
+  .panel{position:absolute;top:0;height:100vh;width:min(720px,94vw);background:var(--surface);
+         border:1px solid var(--border2);border-left:3px solid var(--hue,var(--s2));border-radius:14px 0 0 14px;
+         box-shadow:-24px 0 60px var(--shadow);display:flex;flex-direction:column;pointer-events:auto;overflow:hidden;
+         transform:translateX(40px);opacity:0;transition:transform .26s cubic-bezier(.4,0,.1,1),opacity .2s ease}
+  .panel.in{transform:translateX(0);opacity:1}
+  .panel.buried{filter:brightness(.7) saturate(.82);pointer-events:none}
+  .ptab{position:absolute;left:0;top:0;bottom:0;width:48px;display:none;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;
+        writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;font-weight:800;letter-spacing:.03em;color:var(--hue);
+        background:linear-gradient(90deg,color-mix(in srgb,var(--hue) 26%,var(--surface)),var(--surface));border-right:1px solid var(--border2);
+        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:18px 0;z-index:3}
+  .panel.buried .ptab{display:flex}
+  .ptab:hover{background:color-mix(in srgb,var(--hue) 40%,var(--surface));color:var(--t1)}
+  .pcrumb{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:11px 22px 0;font-size:10.5px;color:var(--t3)}
+  .pcrumb .c{cursor:pointer;color:var(--t3);font-weight:600} .pcrumb .c:hover{color:var(--t1)}
+  .pcrumb .c.cur{color:var(--hue);cursor:default} .pcrumb .sep{opacity:.5}
+  .phead{padding:8px 22px 14px;border-bottom:1px solid var(--border);position:relative}
+  .pkick{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;font-weight:800;color:var(--hue)}
+  .ptitle{font-size:18px;font-weight:800;color:var(--t1);margin-top:5px;line-height:1.22;max-width:90%}
+  .pwhat{font-size:13px;color:var(--t2);margin-top:7px;line-height:1.5}
+  .pclose{position:absolute;top:6px;right:20px;cursor:pointer;color:var(--t3);font-size:18px;line-height:1;border:1px solid var(--border2);border-radius:7px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;background:var(--surface)}
+  .pclose:hover{color:var(--t1);border-color:var(--hue)}
+  .pback{position:absolute;top:6px;right:56px;cursor:pointer;color:var(--t3);font-size:13px;line-height:1;border:1px solid var(--border2);border-radius:7px;height:30px;padding:0 11px;display:flex;align-items:center;gap:5px;background:var(--surface)}
+  .pback:hover{color:var(--t1);border-color:var(--hue)}
+  .pbody{overflow-y:auto;padding:16px 22px 50px;flex:1}
+
+  /* drill links (the children → deeper panels) */
+  .drillhdr{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);font-weight:800;margin:22px 0 4px;display:flex;align-items:center;gap:8px}
+  .drillhdr:before,.drillhdr:after{content:"";height:1px;background:var(--border);flex:1}
+  /* the path caption — names the journey in plain words */
+  .drillpath{font-size:11.5px;color:var(--t3);margin:9px 0 3px;padding-left:2px;display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;line-height:1.7}
+  .drillpath b{color:var(--t2);font-weight:800;letter-spacing:.05em;text-transform:uppercase;font-size:9px;white-space:nowrap}
+  .drillpath .pa{color:var(--hue);opacity:.8;font-weight:800;padding:0 2px}
+  /* guided path: hue spine + numbers = ORDER · type accent (--tc) = CATEGORY */
+  .drills{display:flex;flex-direction:column;gap:9px;margin-top:10px;position:relative;padding-left:36px}
+  .drills:before{content:"";position:absolute;left:13px;top:13px;bottom:13px;width:2px;border-radius:2px;background:color-mix(in srgb,var(--hue) 32%,transparent)}
+  .drills.single{padding-left:0}
+  .drills.single:before{display:none}
+  .drill{position:relative;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--t2);font-family:var(--font);transition:border-color .15s ease,background .15s ease}
+  .drill.open{border-color:color-mix(in srgb,var(--tc) 48%,var(--border2));background:color-mix(in srgb,var(--tc) 5%,var(--surface2))}
+  .drill-head{position:relative;display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;background:transparent;border:none;border-radius:10px;padding:10px 13px;font-family:var(--font);color:inherit}
+  .drill-head:hover{background:color-mix(in srgb,var(--tc) 7%,transparent)}
+  .drill .dnum{position:absolute;left:-36px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:var(--surface);border:2px solid color-mix(in srgb,var(--hue) 62%,var(--surface));color:var(--hue);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;z-index:1;transition:.15s}
+  .drill.open .dnum{background:color-mix(in srgb,var(--hue) 26%,var(--surface));border-color:var(--hue);color:var(--t1)}
+  .drill .di{flex:0 0 auto;width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;background:color-mix(in srgb,var(--tc) 15%,var(--surface3));border:1px solid color-mix(in srgb,var(--tc) 34%,transparent)}
+  .drill .dt{flex:1;min-width:0}
+  .drill .dn{font-size:13px;font-weight:700;color:var(--t1);display:flex;align-items:center;gap:7px;flex-wrap:wrap;line-height:1.25}
+  .drill .dtag{font-size:8.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--tc);border:1px solid color-mix(in srgb,var(--tc) 42%,transparent);background:color-mix(in srgb,var(--tc) 13%,transparent);padding:2px 7px;border-radius:20px;white-space:nowrap}
+  .drill .dstart{font-size:8.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--hue);background:color-mix(in srgb,var(--hue) 16%,transparent);border:1px solid color-mix(in srgb,var(--hue) 48%,transparent);padding:2px 7px;border-radius:20px;white-space:nowrap}
+  .drill .dd{font-size:11.5px;color:var(--t3);margin-top:3px;line-height:1.4}
+  .drill .dchev{flex:0 0 auto;color:var(--tc);font-weight:800;font-size:13px;opacity:.6;transition:transform .27s ease,opacity .15s}
+  .drill.open .dchev{transform:rotate(180deg);opacity:1}
+  .drill-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .27s ease}
+  .drill.open .drill-body{grid-template-rows:1fr}
+  .drill-inner{overflow:hidden;min-height:0}
+  .drill-pad{padding:2px 15px 14px 15px}
+  .drill-pad .blk:first-child{margin-top:5px}
+  .subdrills{margin-top:13px;padding-top:12px;border-top:1px dashed var(--border2);display:flex;flex-direction:column;gap:7px}
+  .sublbl{font-size:8.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--t3);font-weight:800}
+  .ovbtn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;cursor:pointer;background:var(--surface);border:1px solid var(--border2);border-left:3px solid color-mix(in srgb,var(--tc) 60%,var(--border2));border-radius:8px;padding:9px 12px;font-family:var(--font);color:var(--t2);transition:.14s}
+  .ovbtn:hover{background:var(--surface3);transform:translateX(2px)}
+  .ovbtn .ovi{flex:0 0 auto;font-size:14px}
+  .ovbtn .ovt{flex:1;font-size:12.5px;font-weight:700;color:var(--t1);min-width:0}
+  .ovbtn .ovtag{font-size:8px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tc);border:1px solid color-mix(in srgb,var(--tc) 40%,transparent);padding:1.5px 6px;border-radius:20px;white-space:nowrap}
+  .ovbtn .ovgo{flex:0 0 auto;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--tc);opacity:.85;white-space:nowrap}
+  /* the 39-site sensor map */
+  .smap{margin:8px 0 2px;background:var(--surface3);border:1px solid var(--border2);border-radius:10px;padding:12px 14px}
+  .smap svg{width:100%;height:auto;display:block;overflow:visible}
+  .smap .sdot{fill:var(--hue);opacity:.82}
+  .smap .sframe{fill:none;stroke:var(--border2);stroke-width:1}
+  .smap-cap{font-size:10.5px;color:var(--t3);margin-top:9px;text-align:center;line-height:1.4}
+  /* table ⇄ chart toggle (dataset switcher) */
+  .tgl{margin-top:4px;border:1px solid var(--border2);border-radius:11px;overflow:hidden;background:var(--surface2)}
+  .tgl-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:9px 11px;background:var(--surface3);border-bottom:1px solid var(--border2)}
+  .tgl-srcs{display:flex;gap:6px;flex-wrap:wrap}
+  .tgl-src{cursor:pointer;font-family:var(--font);font-size:11.5px;font-weight:700;color:var(--t3);background:transparent;border:1px solid var(--border2);border-radius:20px;padding:4px 13px;transition:.14s}
+  .tgl-src:hover{color:var(--t1);border-color:var(--t3)}
+  .tgl-src.on{color:var(--t1);background:color-mix(in srgb,var(--hue) 22%,transparent);border-color:color-mix(in srgb,var(--hue) 55%,transparent)}
+  .tgl-views{display:flex;gap:3px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:2px}
+  .tgl-view{cursor:pointer;font-family:var(--font);font-size:11px;font-weight:700;color:var(--t3);background:transparent;border:none;border-radius:6px;padding:4px 13px;transition:.14s}
+  .tgl-view:hover{color:var(--t1)}
+  .tgl-view.on{color:var(--t1);background:var(--surface3)}
+  .tgl-panes{padding:13px}
+  .tgl-pane{display:none} .tgl-pane.on{display:block}
+  .tgl-face{display:none} .tgl-face.on{display:block}
+  .tgl .tbl{width:100%}
+  .tgl .tbl td:first-child{font-family:var(--mono);font-size:10.5px;color:var(--t1);white-space:nowrap}
+  .tgl .fig{margin:0} .tgl .fig img{max-height:300px;width:auto;max-width:100%;border-radius:8px}
+  .tgl-note{margin-top:11px;font-size:11.5px;color:var(--t2);line-height:1.5;border-left:3px solid color-mix(in srgb,var(--hue) 50%,transparent);background:color-mix(in srgb,var(--hue) 8%,transparent);padding:8px 12px;border-radius:0 8px 8px 0}
+
+  /* content blocks */
+  .blk{margin-bottom:15px}
+  .blk .bh{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--hue);font-weight:800;margin-bottom:7px}
+  .prose{font-size:13px;line-height:1.55;color:var(--t2)} .prose b{color:var(--t1)} .prose+.prose{margin-top:8px}
+  .dl{display:flex;flex-direction:column;gap:6px}
+  .dl .row{display:flex;gap:12px;font-size:12.5px;line-height:1.4;align-items:baseline}
+  .dl .row .k{flex:0 0 40%;color:var(--t1);font-weight:600} .dl .row .v{color:var(--t2)}
+  table.tbl{border-collapse:collapse;width:100%;font-size:12px}
+  table.tbl th,table.tbl td{text-align:left;padding:6px 9px;border-bottom:1px solid var(--border)}
+  table.tbl th{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);font-weight:800}
+  table.tbl td{color:var(--t2)} table.tbl td b{color:var(--t1)}
+  table.tbl td.num{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+  table.tbl tr.hl td{background:color-mix(in srgb,var(--hue) 10%,transparent)}
+  .pos{color:var(--good);font-weight:700} .neg{color:var(--bad);font-weight:700} .wn{color:var(--warn);font-weight:700}
+  .stat{display:flex;flex-wrap:wrap;gap:9px}
+  .stat .s{flex:1 1 120px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:10px 13px}
+  .stat .s .v{font-size:21px;font-weight:800;color:var(--t1);font-variant-numeric:tabular-nums;line-height:1.05}
+  .stat .s .v.g{color:var(--good)} .stat .s .v.b{color:var(--bad)} .stat .s .v.w{color:var(--warn)}
+  .stat .s .k{font-size:10.5px;color:var(--t3);margin-top:4px;line-height:1.3}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:11px;font-family:var(--mono);background:var(--surface2);border:1px solid var(--border2);color:var(--t2);padding:3px 8px;border-radius:6px}
+  .chip.hi{border-color:var(--hue);color:var(--t1)}
+  .callout{font-size:12.5px;line-height:1.5;color:var(--t2);background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--hue);border-radius:8px;padding:11px 14px}
+  .callout b{color:var(--t1)} .callout.good{border-left-color:var(--good)} .callout.bad{border-left-color:var(--bad)} .callout.warn{border-left-color:var(--warn)}
+  ul.files{list-style:none;display:flex;flex-direction:column;gap:5px}
+  ul.files li{font-size:11px;font-family:var(--mono);color:var(--s5);background:color-mix(in srgb,var(--s5) 9%,transparent);border:1px solid color-mix(in srgb,var(--s5) 26%,transparent);padding:5px 9px;border-radius:6px}
+  figure.fig{margin:0} figure.fig img{width:100%;border:1px solid var(--border);border-radius:9px;background:#fff;display:block}
+  figure.fig figcaption{font-size:11px;color:var(--t3);margin-top:6px;line-height:1.4} figure.fig figcaption b{color:var(--t2)}
+  .code{border:1px solid var(--border2);border-radius:9px;overflow:hidden;background:var(--code-bg)}
+  .code .ch{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-bottom:1px solid var(--border);background:var(--surface2)}
+  .code .cf{font-size:11px;font-family:var(--mono);color:var(--s5);font-weight:700} .code .cl{font-size:10px;color:var(--t3)}
+  .code pre{margin:0;padding:12px 14px;overflow-x:auto} .code code{font-family:var(--mono);font-size:11.5px;line-height:1.55;color:var(--t2);white-space:pre}
+  .code .cm{color:#6c7a6c} .code .kw{color:var(--s6)} .code .st2{color:var(--s2)} .code .nu{color:var(--s4)} .code .fn{color:var(--s1)}
+  .code.tall pre{max-height:62vh;overflow:auto} .code.tall code{font-size:11px;line-height:1.5}
+  .csvwrap{max-height:54vh;overflow:auto;border:1px solid var(--border2);border-radius:9px}
+  table.tbl.csv{font-size:11px} table.tbl.csv th{position:sticky;top:0;background:var(--surface2);z-index:1}
+  table.tbl.csv td.num{color:var(--t1)} table.tbl.csv tr:hover td{background:color-mix(in srgb,var(--hue) 8%,transparent)}
+
+  .foot{margin-top:26px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--t3);display:flex;gap:16px;flex-wrap:wrap}
+  .foot b{color:var(--t2)}
+  @media (max-width:780px){ .seg.cap{flex-basis:120px} .seg .sb{display:none} .rail{flex-basis:40px} }
+</style>
+</head>
+<body data-theme="lakehouse">
+<nav class="gnav" id="gnav"><a class="brand" data-nav="start" target="_top">◆ Kampala PM2.5</a><a data-nav="start" target="_top">🏠 Start</a><a data-nav="tool" target="_top">🎯 Tool</a><a data-nav="views" target="_top">📚 Views</a><a data-nav="findings" target="_top">🔬 Findings</a><a data-nav="report" target="_top">📄 Report</a><a data-nav="log" target="_top">🧾 Log</a><span class="sp"></span><a class="ext" data-nav="deck" target="_top">🖥 Deck</a></nav>
+<script>(function(){var inP=location.pathname.indexOf("/pages/")>=0;var P=inP?"":"pages/",R=inP?"../":"";var H={start:R+"index.html",tool:P+"kampala_planner_prototype.html",views:P+"capstone_pyramid.html",findings:P+"FINDINGS.html",report:P+"FINAL_REPORT.html",log:P+"DECISION_LOG.html",deck:R+"docs/capstone_presentation_v2.pdf"};var cur=(location.pathname.split("/").pop()||"index.html").toLowerCase();document.querySelectorAll("#gnav a[data-nav]").forEach(function(a){var k=a.getAttribute("data-nav");a.setAttribute("href",H[k]);if(!a.classList.contains("brand")&&H[k].split("/").pop().toLowerCase()===cur)a.classList.add("active");});if(window.self!==window.top){var g=document.getElementById("gnav");if(g)g.style.display="none";}})();</script>
+<div class="wrap">
+  <header>
+    <div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2 L22 21 H2 Z" stroke="#0e1016" stroke-width="1.5" stroke-linejoin="round" fill="rgba(14,16,22,.18)"/><path d="M7.2 12.2 H16.8 M4.6 16.6 H19.4" stroke="#0e1016" stroke-width="1.4"/></svg></div>
+    <div class="htext">
+      <div class="eyebrow">The Pyramid View · deliverable 3 · data → features</div>
+      <h1>Smart City Capstone — from raw data to model-ready features</h1>
+      <div class="sub">The Kampala {{PM2.5}} pipeline so far — three free data sources through to the model-ready feature sets — as one compact pyramid. Open a checkpoint, then expand each point in place — the data → the numbers → the reasoning → the code. Deeper layers (full scripts) open their own panel.</div>
+    </div>
+    <div class="themebar"><span class="tb-lab">Theme</span><span id="themeChips"></span></div>
+  </header>
+
+  <div class="legend">
+    <span class="k"><span class="dirdown">▼ down</span> = process order: <b>BASE (raw data)</b> → <b>TIP (model-ready features)</b></span>
+    <span class="k"><span class="dirright">▸ right</span> = the sub-steps <b>|&gt;&gt;&gt;|</b></span>
+    <span class="k"><b>click a point → it expands in place</b> · deeper layers open a panel</span>
+    <span class="gloss-btn" id="glossBtn">📖 Glossary</span>
+  </div>
+
+  <div class="frame">
+    <div class="rail">
+      <div class="cap-b">Base<br>start</div><div class="arr d">▼</div>
+      <div class="spine"></div>
+      <div class="arr d">▼</div><div class="cap-t">Tip<br>features</div>
+    </div>
+    <div class="stack" id="stack"></div>
+  </div>
+
+  <section class="nextcard" style="margin-top:22px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--s3);border-radius:10px;padding:16px 20px">
+    <div style="font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--s3)">Where this deliverable stops · what’s next</div>
+    <div style="color:var(--t1);font-size:15px;font-weight:700;margin-top:4px">The data is now model-ready — the modelling ladder is the next step</div>
+    <div style="color:var(--t2);font-size:12.5px;margin-top:7px;max-width:840px">This hand-off ends at the three nested feature sets — <b>M0</b> location + season → <b>M1</b> + weather → <b>M2</b> + LST. Each rung adds exactly one lever, so the next stage can measure what each lever is worth on its own. The road ahead, in four moves:</div>
+    <ol style="margin:11px 0 2px;padding-left:0;list-style:none;display:grid;gap:8px;max-width:880px">
+      <li style="display:flex;gap:11px;align-items:flex-start"><span style="flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:color-mix(in srgb,var(--s3) 22%,transparent);color:var(--s3);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center">1</span><span style="color:var(--t2);font-size:12.5px"><b style="color:var(--t1)">Build the models.</b> Two trivial baselines (predict the mean · “same as yesterday”), then RandomForest and XGBoost on each feature set — so any gain has a floor it has to beat.</span></li>
+      <li style="display:flex;gap:11px;align-items:flex-start"><span style="flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:color-mix(in srgb,var(--s3) 22%,transparent);color:var(--s3);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center">2</span><span style="color:var(--t2);font-size:12.5px"><b style="color:var(--t1)">Grade them honestly.</b> A model can look clever by <b>memorising</b> instead of learning — so we test it like fair exams. <b>A new place:</b> hide a whole sensor during training, then test on it — can it handle a neighbourhood it has never seen? <b>The future:</b> train on the early months and predict the later ones, never peeking at the days in between. The easy <b>random</b> exam lets it peek at near-identical neighbours; these two do not — and whatever score it loses on the hard exams was <b>leakage</b> (looking smart by memorising, not predicting).</span></li>
+      <li style="display:flex;gap:11px;align-items:flex-start"><span style="flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:color-mix(in srgb,var(--s3) 22%,transparent);color:var(--s3);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center">3</span><span style="color:var(--t2);font-size:12.5px"><b style="color:var(--t1)">Run the ladder.</b> Climb M0 → +weather → +LST one rung at a time and read each rung’s isolated jump — the clean test of which lever actually moves PM2.5.</span></li>
+      <li style="display:flex;gap:11px;align-items:flex-start"><span style="flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:color-mix(in srgb,var(--s3) 22%,transparent);color:var(--s3);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center">4</span><span style="color:var(--t2);font-size:12.5px"><b style="color:var(--t1)">Turn it toward forecasting.</b> Move from “what is the air now?” to “what will it be tomorrow?” — the usable smart-city product, and where the work heads after the ladder.</span></li>
+    </ol>
+  </section>
+  <div class="foot">
+    <span><b>Every number traces to</b> the committed scripts + result CSVs in <span style="font-family:var(--mono)">3rd-cap-handover/</span>.</span>
+    <span><b>Grain:</b> site-day · 13,944 rows · 39 sites · 2019–2020.</span>
+    <span><b>Stops at:</b> model-ready feature sets (M0 → M1 → M2) — modelling is the next stage.</span>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="panels" id="panels"></div>
+<div id="tip"></div>
+
+<script>
+/* figures · full scripts · result CSVs — injected verbatim post-build for a fully self-contained file */
+const FIGS = {/*FIGS_INJECT*/};
+const SCRIPTS = {/*SCRIPTS_INJECT*/};
+const CSVS = {/*CSVS_INJECT*/};
+
+/* ============================ glossary ============================ */
+const GLOSSARY={
+ 'PM2.5':['Fine particle pollution','Airborne specks ≤2.5 microns — what we predict, in µg/m³.'],
+ 'LST':['Land Surface Temperature','How hot the GROUND looks to a satellite (not air temp). The novel lever this capstone tests.'],
+ 'AOD':['Aerosol Optical Depth','Satellite haze measure — the proxy the prior study (Adong 2025) used alone. Not a lever in our pipeline; shown only where it describes that precedent.'],
+ 'R²':['R-squared','Model score 0–1: 1 = perfect, 0 = no better than guessing the mean; can go negative.'],
+ 'RMSE':['Root Mean Squared Error','Typical error size (µg/m³), squaring so big misses hurt more. Lower = better.'],
+ 'MAE':['Mean Absolute Error','The average everyday error size (µg/m³). Lower = better.'],
+ 'MNAR':['Missing Not At Random','The gaps carry info: missing LST = cloudy days, which genuinely have lower pollution.'],
+ 'GroupKFold':['Leave-sites-out CV','A fair test that hides WHOLE sites from training to measure skill at a brand-new place.'],
+ 'cKDTree':['cKDTree','A fast scipy tool that finds each sensor’s nearest satellite/weather grid cell.'],
+ 'SHAP':['SHapley Additive exPlanations','Opens the model’s black box — shows which inputs pushed each prediction up or down.'],
+ 'XGBoost':['XGBoost','Trees built one after another, each fixing the last’s mistakes. The best performer here.'],
+ 'RandomForest':['Random Forest','Averages hundreds of independent decision trees into one prediction.'],
+ 'persistence':['Persistence baseline','The simplest forecast — “tomorrow = today.” A real model must beat it.'],
+ 'ERA5':['ERA5 weather','Free global weather reanalysis (ECMWF) — the lever Adong left out.'],
+ 'MODIS':['MODIS','NASA satellite instrument — our source of land-surface temperature.'],
+ 'AirQo':['AirQo','Ugandan low-cost sensor network — our ground PM2.5 readings.'],
+ 'WHO':['WHO limit','Safe daily PM2.5 = 15 µg/m³. Kampala exceeds it 94% of days.'],
+ 'conformal':['Conformal prediction','Wraps a prediction in a calibrated band: “42, 90% sure it’s 30–55.”'],
+ 'reanalysis':['Reanalysis','Historical weather rebuilt by blending physics models with observations.'],
+ 'Adong 2025':['Adong et al. 2025','The Kampala precedent: PM2.5 from satellite AOD alone (no weather), Random Forest, R²=0.72.'],
+ 'ΔR²':['Delta R²','How much a lever moved the score. +0.31 big · +0.001 nothing · −0.12 made it worse.'],
+ 'Mann-Whitney':['Mann-Whitney U','A non-parametric test for whether two groups differ — used here to prove cloudy vs clear days have different PM2.5.'],
+ 'Spearman':['Spearman correlation','Rank correlation (monotonic), robust to outliers and non-linearity.'],
+ 'TreeExplainer':['SHAP TreeExplainer','An exact, fast SHAP method specifically for tree models like XGBoost.'],
+ 'LMIC':['Low/Middle-Income Country','Cities with little budget for dense monitoring — where cheap-data methods matter most.'],
+};
+function glow(s){return (s==null?'':String(s)).replace(/\{\{([^}|]+)(\|([^}]+))?\}\}/g,(m,k,_2,d)=>{k=k.trim();const t=d||k;return GLOSSARY[k]?`<span class="term" data-k="${k.replace(/"/g,'&quot;')}">${t}</span>`:t;});}
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* ============================ block + node builders ============================ */
+const P =(html)=>({t:'prose',html});
+const DLB=(rows)=>({t:'dl',rows});
+const TBL=(head,rows,hlRow)=>({t:'table',head,rows,hlRow});
+const STAT=(items)=>({t:'stat',items});
+const CHIP=(items,hi)=>({t:'chips',items,hi});
+const CO=(html,cls)=>({t:'callout',html,cls});
+const FILES=(items)=>({t:'files',items});
+const CHART=(fig,cap)=>({t:'chart',fig,cap});
+const CODE=(file,lines,code,note)=>({t:'code',file,lines,code,note});
+const FULLCODE=(file,note)=>({t:'fullcode',file,note});           // renders the ENTIRE injected script
+const CSVTBL=(name,cap,opts)=>({t:'csvtbl',name,cap,opts});       // renders an injected result CSV as a table
+const N=(o)=>o; // node passthrough {title,kick,what,blocks,children}
+const TGL=(tabs)=>({t:'toggle',tabs});  // table⇄chart switcher across sources
+const MAP=()=>({t:'sitesmap'});         // the 39-sensor scatter map
+
+/* code micro-highlighter (keywords / strings / numbers / comments) */
+function hl(code){
+  // single-pass tokenizer — never re-processes its own inserted markup
+  const re=/(#[^\n]*)|("[^"\n]*"|'[^'\n]*')|\b(def|return|for|in|if|elif|else|import|from|as|lambda|with|not|and|or|None|True|False|class)\b|(\d+\.?\d*)/g;
+  let out='',last=0,m;
+  while((m=re.exec(code))!==null){
+    out+=esc(code.slice(last,m.index));
+    if(m[1])out+='<span class="cm">'+esc(m[1])+'</span>';
+    else if(m[2])out+='<span class="st2">'+esc(m[2])+'</span>';
+    else if(m[3])out+='<span class="kw">'+esc(m[3])+'</span>';
+    else out+='<span class="nu">'+esc(m[4])+'</span>';
+    last=re.lastIndex;
+    if(re.lastIndex===m.index)re.lastIndex++;
+  }
+  out+=esc(code.slice(last));
+  return out;
+}
+function csvTable(name,cap,opts){
+  const raw=CSVS[name]; if(!raw) return `<div class="callout warn">result table <b>${esc(name)}</b> not embedded — rebuild.</div>`;
+  const rows=raw.trim().split('\n').map(r=>r.split(','));
+  const head=rows[0]||[], body=rows.slice(1);
+  const max=(opts&&opts.max)||body.length, shown=body.slice(0,max);
+  let h=`<div class="csvwrap"><table class="tbl csv"><tr>${head.map(c=>`<th>${esc(c)}</th>`).join('')}</tr>`;
+  h+=shown.map(r=>`<tr>${r.map((c,i)=>`<td class="${i>0?'num':''}">${esc(c)}</td>`).join('')}</tr>`).join('')+`</table></div>`;
+  h+=`<div class="prose" style="margin-top:5px;font-size:10.5px;color:var(--t3)">${cap?glow(cap)+' · ':''}<span style="font-family:var(--mono)">${esc(name)}</span>${body.length>max?` · ${max}/${body.length} rows`:` · ${body.length} rows`}</div>`;
+  return h;
+}
+function toggleWidget(tabs){
+  if(!tabs||!tabs.length) return '';
+  const srcs=tabs.map((t,i)=>`<button class="tgl-src${i===0?' on':''}" data-i="${i}">${esc(t.label)}</button>`).join('');
+  const panes=tabs.map((t,i)=>{
+    const th=(t.table&&t.table.head)||[], rows=(t.table&&t.table.rows)||[];
+    const tbl=`<table class="tbl"><tr>${th.map(h=>`<th>${glow(h)}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${glow(c)}</td>`).join('')}</tr>`).join('')}</table>`;
+    const src=FIGS[t.fig];
+    const cht=`<figure class="fig">${src?`<img src="${src}" alt="${esc(t.fig)}" loading="lazy">`:`<div class="callout warn">chart not embedded</div>`}<figcaption>${glow(t.cap||'')}</figcaption></figure>`;
+    const note=t.note?`<div class="tgl-note">${glow(t.note)}</div>`:'';
+    return `<div class="tgl-pane${i===0?' on':''}" data-i="${i}"><div class="tgl-face tbl-face on">${tbl}</div><div class="tgl-face cht-face">${cht}</div>${note}</div>`;
+  }).join('');
+  return `<div class="tgl"><div class="tgl-bar"><div class="tgl-srcs">${srcs}</div><div class="tgl-views"><button class="tgl-view on" data-v="tbl">table</button><button class="tgl-view" data-v="cht">chart</button></div></div><div class="tgl-panes">${panes}</div></div>`;
+}
+function renderBlocks(blocks){
+  if(!blocks) return '';
+  return blocks.map(b=>{
+    let inner='';
+    if(b.t==='prose') inner=`<div class="prose">${glow(b.html)}</div>`;
+    else if(b.t==='dl') inner=`<div class="dl">${b.rows.map(r=>`<div class="row"><span class="k">${glow(r[0])}</span><span class="v">${glow(r[1])}</span></div>`).join('')}</div>`;
+    else if(b.t==='table') inner=`<table class="tbl"><tr>${b.head.map(h=>`<th>${glow(h)}</th>`).join('')}</tr>${b.rows.map((r,ri)=>`<tr class="${b.hlRow===ri?'hl':''}">${r.map((c,i)=>`<td class="${i>0?'num':''}">${glow(c)}</td>`).join('')}</tr>`).join('')}</table>`;
+    else if(b.t==='stat') inner=`<div class="stat">${b.items.map(s=>`<div class="s"><div class="v ${s.c||''}">${s.v}</div><div class="k">${glow(s.k)}</div></div>`).join('')}</div>`;
+    else if(b.t==='chips') inner=`<div class="chips">${b.items.map(c=>`<span class="chip${b.hi&&b.hi.includes(c)?' hi':''}">${c}</span>`).join('')}</div>`;
+    else if(b.t==='callout') inner=`<div class="callout ${b.cls||''}">${glow(b.html)}</div>`;
+    else if(b.t==='files') inner=`<ul class="files">${b.items.map(f=>`<li>${esc(f)}</li>`).join('')}</ul>`;
+    else if(b.t==='chart'){const src=FIGS[b.fig]; inner=`<figure class="fig">${src?`<img src="${src}" alt="${b.fig}" loading="lazy">`:`<div class="callout warn">chart <b>${b.fig}.png</b> — embed pending (open from the capstone folder to view)</div>`}<figcaption>${glow(b.cap||'')}</figcaption></figure>`;}
+    else if(b.t==='code') inner=`<div class="code"><div class="ch"><span class="cf">${esc(b.file)}</span><span class="cl">${b.lines?'lines '+b.lines:''}</span></div><pre><code>${hl(b.code)}</code></pre></div>${b.note?`<div class="prose" style="margin-top:6px">${glow(b.note)}</div>`:''}`;
+    else if(b.t==='fullcode'){const c=SCRIPTS[b.file]; inner=`<div class="code tall"><div class="ch"><span class="cf">${esc(b.file)}</span><span class="cl">full script${c?' · '+c.split('\n').length+' lines':''}</span></div><pre><code>${c?hl(c):'(script not embedded — rebuild)'}</code></pre></div>${b.note?`<div class="prose" style="margin-top:6px">${glow(b.note)}</div>`:''}`;}
+    else if(b.t==='csvtbl') inner=csvTable(b.name,b.cap,b.opts);
+    else if(b.t==='toggle') inner=toggleWidget(b.tabs);
+    else if(b.t==='sitesmap') inner=sitesMapSVG();
+    const head=b.bh?`<div class="bh">${glow(b.bh)}</div>`:'';
+    return `<div class="blk">${head}${inner}</div>`;
+  }).join('');
+}
+const bh=(b,h)=>{b.bh=h;return b;}; // attach a header to a block
+
+/* ============================ THE CONTENT TREE ============================ */
+/* node = {title, kick, what, blocks:[...], children:[node,...]} */
+/* drill icons */
+const IC={code:'⌨️',data:'📊',chart:'📈',why:'🧠',math:'∑',test:'🧪',step:'▸',file:'📄'};
+
+const STAGES=[
+{n:0,name:'Data foundation',hue:'--s0',sections:[
+  {label:'3 free sources',blurb:'pollution · weather · satellite',node:N({
+    kick:'⌨️ validate_raw.py',
+    title:'Three free public feeds — and a pre-flight before they ever touch',
+    what:'The capstone stands on three open datasets, each on a different grain. {{AirQo}} {{PM2.5}} is the <b>target</b> (hourly low-cost sensors, reused from the {{Adong 2025}} Mendeley set). {{ERA5}} weather (temp, dewpoint, wind u/v, pressure, rain) is <b>our</b> download — Adong excluded weather. {{MODIS}} {{LST}} (MOD11A1, 1km daily) is also our download — the novel lever. <code>validate_raw.py</code> reads all four read-only and proves every assumption the merge depends on before a single row is joined.',
+    blocks:[
+      DLB([['{{AirQo}} PM2.5','target · hourly sensors · reused from {{Adong 2025}}'],['{{ERA5}} weather','our download · Adong left it out'],['{{MODIS}} {{LST}}','our download · 1km daily · the novel lever'],['Pre-flight','per-file shape · time grain · grid res · null% per variable']]),
+      CO('Validating first turns a hidden join corruption into a visible, <b>decided</b> choice — nothing is assumed.','good')
+    ],
+    children:[
+      N({kick:'📚 the datasets',title:'The three datasets, field by field',what:'Every column in the merged table, traced to the feed it came from — flip each source between its plain-English schema and its signature chart.',blocks:[
+        P('Three open feeds on three different grains. Tap a source to see exactly what it puts on the table — then flip <b>table ⇄ chart</b> to see its shape:'),
+        TGL([
+          {label:'AirQo · PM2.5',fig:'fig1_pm25_distribution',cap:'PM2.5 is right-skewed — a calm majority of days, with rare and dangerous spikes.',
+           table:{head:['Field','What it means','Unit · grain'],rows:[
+             ['pm2_5','Fine-particle pollution — the prediction target','µg/m³ · hourly→daily mean'],
+             ['pm10','Coarser particles — context, not modelled','µg/m³'],
+             ['site_id','Which of the 39 ground sensors','39 sites'],
+             ['site_latitude · site_longitude','Where the sensor sits','degrees'],
+             ['n_obs','How many hourly readings back each daily mean','count']
+           ]},
+           note:'Reused from the {{Adong 2025}} Mendeley set — the same ground truth the precedent used. Hourly readings collapse to a daily <b>mean</b> per site; <code>n_obs</code> keeps the receipt of how many backed each value.'},
+          {label:'ERA5 · weather',fig:'fig5_correlation_heatmap',cap:'How each weather field co-moves with PM2.5 — the correlation heatmap.',
+           table:{head:['Field','What it means','Unit · grain'],rows:[
+             ['temp_2m_K','Air temperature at 2 m','Kelvin'],
+             ['dewpoint_2m_K','Dew point — a humidity proxy','Kelvin'],
+             ['wind_u_10m_ms','Wind, east–west component','m/s'],
+             ['wind_v_10m_ms','Wind, north–south component','m/s'],
+             ['surface_pressure_Pa','Surface air pressure','Pascals'],
+             ['precipitation_m','Rainfall — the daily TOTAL','metres · daily SUM']
+           ]},
+           note:'<b>Our</b> download — {{Adong 2025}} deliberately left weather out. Everything averages to a daily <b>mean</b> except precipitation, which <b>sums</b> (ERA5 rain is an accumulated rate, so washout depends on the daily total, not the average).'},
+          {label:'MODIS · LST',fig:'fig3_lst_gap_by_month',cap:'LST availability by month — most days are cloud-gapped (the ~80% hole).',
+           table:{head:['Field','What it means','Unit · grain'],rows:[
+             ['lst_day_k','Land-surface temp, daytime','Kelvin'],
+             ['lst_night_k','Land-surface temp, nighttime','Kelvin'],
+             ['lst_day_available','FLAG · 1 = daytime LST present, 0 = cloud-gapped','0 / 1'],
+             ['lst_night_available','FLAG · 1 = nighttime LST present, 0 = cloud-gapped','0 / 1']
+           ]},
+           note:'<b>Our</b> download (MOD11A1, 1 km daily) — the novel lever under test. ~80% of days are cloud-gapped and the gap is {{MNAR}} (missing = cloudy = genuinely lower {{PM2.5}}), so {{LST}} is kept <b>with holes</b> and the two availability flags mark presence — never filled at the merge.'}
+        ])
+      ]}),
+      N({kick:'⌨️ the code',title:'Scan every variable for holes before trusting it',what:'For each raw file: shape, time grain, grid resolution, and a per-variable null scan — the line that surfaces the 80% LST gap early.',blocks:[
+        P("The per-variable null loop is the heart of the pre-flight: it walks every variable in each long-format file and prints its missing-rate, so the {{MODIS}} cloud-gap shows up <i>here</i>, not three steps later inside a corrupted join."),
+        CODE('validate_raw.py','79-83',"print(f\"value nulls     : {df['value'].isna().sum():,} ({df['value'].isna().mean()*100:.1f}%)\")\nprint(\"null % by variable:\")\nfor v in df['variable'].cat.categories:\n    sub = df[df['variable'] == v]['value']\n    print(f\"   - {v:<16}: {sub.isna().mean()*100:5.1f}%   (n={len(sub):,})\")",'Per-variable null scan — the LST gap surfaces at pre-flight, before any merge.'),
+        N({kick:'📄 full script',title:'The whole pre-flight',what:'Every check: shape, grain, grid resolution, spatial overlap (39 sites in the MODIS box), temporal overlap, and the join-grain verdict.',blocks:[
+          FULLCODE('validate_raw.py','Full read-only validation — confirms every assumption build_merge.py depends on; writes nothing.')
+        ]})
+      ]}),
+      N({kick:'🧪 test results',title:'39 sites in the box · grains differ',what:'The two facts the merge hinges on: how many sensors actually fall inside the satellite footprint, and whether the feeds share a time grain (they do not).',blocks:[
+        STAT([{v:'39',k:'AirQo sites inside MODIS bbox',c:'g'},{v:'4',k:'raw feeds checked',c:''},{v:'differ',k:'time grains (hourly vs daily)',c:'w'}]),
+        P("<b>What are the 39 sites?</b> Picture 39 little air-sniffers — low-cost {{AirQo}} sensors bolted to rooftops, poles and roadsides around greater Kampala. Each one tastes the air every hour and reports how dirty it is. They are the <b>only</b> places we have real {{PM2.5}} on the ground, so everything the model learns, it learns from these 39 dots:"),
+        MAP(),
+        TBL(['Feed','Native grain','Note'],[['AirQo PM2.5','hourly','point sensors'],['ERA5 weather','daily grid','reanalysis'],['ERA5 precip','daily grid','accumulated'],['MODIS LST','daily 1km','~80% cloud-gapped']],null),
+        CO('Later these same 39 dots become the <b>exam</b>: to check the model works somewhere new, we hide whole sensors during training and test only on them — a neighbourhood it has never seen. That is the “new place” test in <b>what’s next</b>.','good')
+      ]}),
+      N({kick:'🧠 why',title:'Why validate before you merge',what:'A pre-flight converts silent corruption into an explicit decision.',blocks:[
+        P("Joining feeds on different grains without checking is how a hidden bug — a duplicated row, a grain mismatch — sneaks into every downstream number. Running the scan first means the join-grain choice is <b>made on purpose</b>, with the evidence in hand."),
+        CO('39 sites in the box and clearly different grains are exactly the two facts the next step needs — so the merge starts from proof, not hope.','good')
+      ]})
+    ]
+  })},
+  {label:'Nearest-cell join',blurb:'cKDTree · site → grid',node:N({
+    kick:'⌨️ build_merge.py',
+    title:'Snap each sensor to its closest grid cell',
+    what:'A point sensor and a satellite grid do not share coordinates, so each {{AirQo}} site is linked to its <b>nearest</b> grid cell — separately for each source — using a {{cKDTree}} with k=1. The link is many-to-one (many site-days fold onto one cell), so there is no row explosion. All 39 sites get matched.',
+    blocks:[
+      DLB([['Method','{{cKDTree}} k=1 nearest neighbour'],['Direction','site → grid cell, per source'],['Cardinality','many-to-one · no row explosion'],['Coverage','all 39 sites linked']]),
+      CO('k=1 nearest is the simplest <b>honest</b> spatial link — no interpolation magic, just the closest real cell.','good')
+    ],
+    children:[
+      N({kick:'⌨️ the code',title:'cKDTree, one query, integer cell ids',what:'Drop duplicate grid cells, build the tree once, query every site for its single closest cell.',blocks:[
+        P("Each unique grid cell gets an integer id; a {{cKDTree}} over those cells answers all 39 site queries in one <code>query(..., k=1)</code> call, returning the nearest cell per site."),
+        CODE('build_merge.py','31-36',"def nearest_cell(long_df, site_xy):\n    \"\"\"Assign each long-format grid an integer cell_id; return (cells_df, site->cell_id).\"\"\"\n    cells = long_df[[\"latitude\", \"longitude\"]].drop_duplicates().reset_index(drop=True)\n    cells[\"cell_id\"] = np.arange(len(cells))\n    _, idx = cKDTree(cells[[\"latitude\", \"longitude\"]].values).query(site_xy, k=1)\n    return cells, cells[\"cell_id\"].values[idx]",'One tree per source; k=1 gives each site its single nearest cell — many-to-one.'),
+        N({kick:'📄 full script',title:'The whole merge',what:'Nearest-cell maps, daily aggregation, the three joins, availability flags, and the final 19-column table.',blocks:[
+          FULLCODE('build_merge.py','Full merge — site-day grain, nearest-cell spatial link, gaps kept + flagged, no merge-time imputation.')
+        ]})
+      ]}),
+      N({kick:'🧪 test results',title:'39 sites · one row per site-day',what:'Every site links to exactly one cell per source, and the many-to-one design keeps the table at one row per site-day.',blocks:[
+        STAT([{v:'39',k:'sites linked',c:'g'},{v:'k=1',k:'nearest neighbour',c:''},{v:'many→1',k:'site-days per cell · no explosion',c:'g'}])
+      ]}),
+      N({kick:'🧠 why',title:'Why k=1 nearest',what:'The simplest defensible spatial link, with no fabricated values.',blocks:[
+        P("Interpolating between cells would invent {{LST}} readings that were never measured — risky for the variable whose value is the whole research question. Nearest-cell uses only real observations, and many-to-one guarantees one clean row per site-day."),
+        CO('Simplest honest link beats clever interpolation when the variable under test is the one you would be faking.','good')
+      ]})
+    ]
+  })},
+  {label:'Daily aggregation',blurb:'mean · except rain = SUM',node:N({
+    kick:'⌨️ build_merge.py',
+    title:'Roll everything up to one day — averaging, except rain',
+    what:'To match {{MODIS}}\'s native daily grain, {{AirQo}} hourly readings collapse to a daily <b>mean</b> PM2.5 per site; {{ERA5}} weather also averages to daily mean. Precipitation is the exception — it <b>sums</b>, because ERA5 <code>tp</code> is an accumulated rate and washout depends on the day\'s total rainfall. <code>n_obs</code> records how many hourly readings sit behind each mean.',
+    blocks:[
+      DLB([['PM2.5 (AirQo)','hourly → daily MEAN'],['Weather (ERA5)','→ daily MEAN'],['Precipitation','→ daily SUM (accumulated · total matters)'],['n_obs','# hourly readings behind each mean']]),
+      CO('Daily matches MODIS native grain — so the novel variable is never faked up or down to fit.','good')
+    ],
+    children:[
+      N({kick:'⌨️ the code',title:'mean for weather, sum for rain',what:'The pivot aggregates each source to daily per cell — mean almost everywhere, sum for precipitation.',blocks:[
+        P("Two calls to the same wide-daily pivot do the work: weather and LST aggregate with <code>how=\"mean\"</code>, precipitation with <code>how=\"sum\"</code> — one line encodes the rainfall exception."),
+        CODE('build_merge.py','83-86',"modis_w = to_wide_daily(mod, mcells, set(m_sid), \"mean\").rename(\n    columns={\"LST_Day_K\": \"lst_day_k\", \"LST_Night_K\": \"lst_night_k\"})\nwth_w = to_wide_daily(wth, wcells, set(w_sid), \"mean\")\npcp_w = to_wide_daily(pcp, pcells, set(p_sid), \"sum\")   # precipitation = daily TOTAL (ERA5 tp is accumulated; washout depends on total rainfall)",'mean for weather + LST; sum for precipitation — the accumulated-rate exception.'),
+        N({kick:'📄 full script',title:'The whole merge',what:'The aggregation in full context — nearest-cell maps, the daily pivots, joins, and flags.',blocks:[
+          FULLCODE('build_merge.py','Full merge — daily aggregation (mean, rain summed), nearest-cell link, gaps kept + flagged.')
+        ]})
+      ]}),
+      N({kick:'🧪 test results',title:'Daily grain locked',what:'Each source lands on one row per site-day, with mean everywhere except the summed rainfall total.',blocks:[
+        TBL(['Source','Aggregation','Why'],[['AirQo PM2.5','daily MEAN','target on MODIS grain'],['ERA5 weather','daily MEAN','average conditions'],['Precipitation','daily SUM','accumulated total rainfall'],['MODIS LST','daily MEAN','native daily already']],2)
+      ]}),
+      N({kick:'🧠 why',title:'Why rain sums but the rest averages',what:'A daily mean rate would understate a short, heavy downpour.',blocks:[
+        P("Averaging matches MODIS\'s native daily grain, so the novel {{LST}} variable is never stretched or squeezed to fit. Rain is different: a daily <i>average</i> rate would flatten a violent two-hour storm into a gentle drizzle — but washout depends on the <b>total</b> that fell, so precipitation sums."),
+        CO('Match the grain for everything; sum the rain — because total rainfall, not average rate, is what scrubs the air.','good')
+      ]})
+    ]
+  })},
+  {label:'Merged table + flags',blurb:'13,944 × 19 · LST kept w/ holes',node:N({
+    kick:'⌨️ build_merge.py',
+    title:'One clean table — gaps kept on purpose, not filled',
+    what:'The output is <code>merged_kampala_complete.csv</code>: <b>13,944 site-days × 19 columns</b>, 2019–2020, 39 sites. It is clean where it counts — 0 duplicate site-days, 0 PM2.5 nulls, 0 LST flag mismatches. {{LST}} stays ~80% missing with <b>no merge-time imputation</b>; instead two availability flags (<code>lst_day_available</code> / <code>lst_night_available</code>) mark where it is present — the {{AOD}}_QA move. Imputation is deferred to Stage 2.',
+    blocks:[
+      STAT([{v:'13,944',k:'site-days',c:''},{v:'19',k:'columns',c:''},{v:'39',k:'sites',c:''},{v:'~80%',k:'LST missing · KEPT + flagged',c:'w'}]),
+      CO('LST gaps are {{MNAR}} (missing = cloudy = genuinely lower pollution) — filling at merge would erase that signal, so gaps are carried and flagged.','warn')
+    ],
+    children:[
+      N({kick:'⌨️ the code',title:'Add the availability flags + calendar',what:'Two binary flags capture LST presence; month and day-of-week add calendar context — no imputation.',blocks:[
+        P("The flags are pure presence indicators — <code>notna()</code> cast to int — so the model can <i>learn</i> the gap rather than be handed a fabricated value; <code>month</code> and <code>day_of_week</code> add the calendar features."),
+        CODE('build_merge.py','94-98',"df[\"lst_day_available\"] = df[\"lst_day_k\"].notna().astype(int)\ndf[\"lst_night_available\"] = df[\"lst_night_k\"].notna().astype(int)\ndf[\"month\"] = df[\"day\"].dt.month\ndf[\"day_of_week\"] = df[\"day\"].dt.dayofweek",'Availability flags (the AOD_QA move) + calendar features — gaps marked, never filled.'),
+        N({kick:'📄 full script',title:'The whole merge',what:'The full assembly that produces the 19-column table — link, aggregate, join, flag, order, write.',blocks:[
+          FULLCODE('build_merge.py','Full merge — outputs merged_kampala_complete.csv, 13,944 × 19, LST kept with holes + flags.')
+        ]})
+      ]}),
+      N({kick:'🧪 test results',title:'13,944 × 19 · the column map',what:'The clean-table guarantees plus the 19 columns, grouped by what they carry.',blocks:[
+        STAT([{v:'0',k:'duplicate site-days',c:'g'},{v:'0',k:'PM2.5 nulls',c:'g'},{v:'0',k:'LST flag mismatches',c:'g'}]),
+        TBL(['Group','Columns'],[['Keys / location','site_id · day · site_latitude · site_longitude'],['Target','pm2_5 · pm10 · n_obs'],['Weather (ERA5)','temp_2m_K · dewpoint_2m_K · wind_u_10m_ms · wind_v_10m_ms · surface_pressure_Pa · precipitation_m'],['Satellite (MODIS)','lst_day_k · lst_night_k'],['Availability flags','lst_day_available · lst_night_available'],['Calendar','month · day_of_week']],null)
+      ]}),
+      N({kick:'🧠 why',title:'Why keep the holes',what:'Informative missingness is signal — filling it at merge would delete that signal.',blocks:[
+        P("The {{LST}} gaps are {{MNAR}}: a missing cell means it was cloudy, and cloudy days genuinely run lower on {{PM2.5}}. Mean-filling at merge would paint over that pattern with an average that lies. Carrying the gap plus a flag keeps the truth and lets Stage 2 test imputation as a deliberate experiment."),
+        CO('A flag turns an 80%-missing column from a defect into a feature — the gap itself becomes something the model can read.','good')
+      ]})
+    ]
+  })}
+]},{n:1,name:'Explore & frame',hue:'--s1',sections:[
+  {label:'The target',blurb:'PM2.5 · 94% over WHO',node:N({
+    kick:'⌨️ eda.py',
+    title:'Meet the thing we are predicting — and it is alarming',
+    what:'The job is supervised regression on daily {{PM2.5}}. Its shape sets everything downstream: mean <b>38.2</b>, median <b>33.8</b>, max <b>152.9</b> µg/m³ — right-skewed, with rare but extreme highs. And <b>94%</b> of all site-days breach the {{WHO}} 24-hour guideline of 15 µg/m³. Kampala\'s air is heavily polluted, and the rare spikes are the dangerous part.',
+    blocks:[
+      STAT([{v:'38.2',k:'mean µg/m³',c:''},{v:'33.8',k:'median µg/m³',c:''},{v:'152.9',k:'max µg/m³',c:'w'},{v:'94%',k:'site-days over WHO 15',c:'bad'}]),
+      CO('The target\'s shape — rare-but-critical highs on a right-skewed spread — is what dictates the metrics and the honest test.','warn')
+    ],
+    children:[
+      N({kick:'⌨️ the code',title:'WHO exceedance + IQR outliers',what:'Count the share of site-days above the WHO line, then flag the right-tail outliers via the Q3+1.5·IQR rule.',blocks:[
+        P("Two reads on the target\'s danger: the fraction over {{WHO}} 15 (how routinely the air is unsafe) and the {{PM2.5}} above Q3+1.5·IQR (how heavy the right tail is)."),
+        CODE('eda.py','47-50',"who = (p > 15).mean() * 100\nline(f\"- WHO 24h guideline (15 ug/m3): {who:.0f}% of site-days exceed it -> Kampala air is heavily polluted\")\niqr = q[.75] - q[.25]; hi = q[.75] + 1.5 * iqr\nline(f\"- outliers (> Q3+1.5*IQR = {hi:.0f}): {(p>hi).sum()} site-days ({(p>hi).mean()*100:.1f}%); right-skewed, no negatives\")",'WHO exceedance share + IQR outlier flag — quantifies how polluted and how skewed.'),
+        N({kick:'📄 full script',title:'The whole EDA',what:'Distribution, seasonality, the LST gap + MNAR test, and correlations — the full Phase 1 feature study.',blocks:[
+          FULLCODE('eda.py','Full Phase 1 EDA — distribution, temporal pattern, MNAR test, correlations; writes the figures + summary.')
+        ]})
+      ]}),
+      N({kick:'🧪 test results',title:'Skewed, polluted, spiky',what:'Centre, extreme, and exceedance — the three numbers that frame the modelling problem.',blocks:[
+        STAT([{v:'38.2',k:'mean',c:''},{v:'33.8',k:'median',c:''},{v:'152.9',k:'max',c:'w'},{v:'94%',k:'over WHO',c:'bad'}]),
+        TBL(['Statistic','Value','Read'],[['mean','38.2','well above WHO 15'],['median','33.8','typical day still unsafe'],['max','152.9','rare extreme spike'],['% over WHO 15','94%','almost every day breaches']],3)
+      ]}),
+      N({kick:'📈 the chart',title:'See the shape',what:'Histogram with the WHO line and the mean, plus a box-plot of the spread and outliers.',blocks:[
+        CHART('fig1_pm25_distribution','PM2.5 histogram (WHO 15 + mean marked) beside a box-plot — right-skewed, mass sitting far above the guideline.')
+      ]}),
+      N({kick:'🧠 why',title:'Why the shape sets the rules',what:'Rare-but-critical highs are exactly the events that matter, and they decide the metric and the test.',blocks:[
+        P("When the dangerous days are the rare high ones, an R² that rewards fitting the calm middle can hide failure on the spikes. The skew is the reason later stages lean on robust metrics and an honest out-of-time test rather than a flattering random split."),
+        CO('A right-skewed target with critical highs is a warning to the modeller: pick metrics and splits that do not reward ignoring the spikes.','warn')
+      ]})
+    ]
+  })},
+  {label:'Seasonality',blurb:'dry vs wet rhythm',node:N({
+    kick:'⌨️ eda.py',
+    title:'Pollution breathes with the seasons',
+    what:'{{PM2.5}} follows a clear dry/wet rhythm — it climbs in the dry months and eases in the rains. That single fact does two jobs: it explains why <b>month</b> and <b>weather</b> are real predictors, and it is the reason the model must be tested <b>chronologically</b> — a random split would let the season leak from train into test.',
+    blocks:[
+      DLB([['Pattern','clear dry/wet seasonal rhythm'],['Peak','dry months run highest'],['So','month + weather are real signal'],['Therefore','test chronologically, never random']]),
+      CO('Seasonality is the hidden reason a random split lies — it leaks the season across the train/test line.','warn')
+    ],
+    children:[
+      N({kick:'⌨️ the code',title:'Daily trend + monthly rollup',what:'Average PM2.5 by day for the time-series view, then by month to expose the dry/wet rhythm.',blocks:[
+        P("Two group-bys draw the seasonality: a daily city-mean for the trend line, and a per-month mean that ranks which months run dirtiest."),
+        CODE('eda.py','61-66',"daily = df.groupby(\"day\").pm2_5.mean()\nmonthly = df.groupby(df.day.dt.month).pm2_5.mean()\nline(\"\")\nline(\"## 2. Temporal pattern\")\nline(f\"- city-daily PM2.5 ranges {daily.min():.0f}-{daily.max():.0f}; \"\n     f\"highest months: {', '.join(str(m) for m in monthly.sort_values(ascending=False).head(3).index.tolist())}\")",'Daily + monthly aggregation — exposes the dry/wet seasonal rhythm.'),
+        N({kick:'📄 full script',title:'The whole EDA',what:'The seasonality read in full context — distribution, gap test, and correlations alongside.',blocks:[
+          FULLCODE('eda.py','Full Phase 1 EDA — temporal pattern in context with the distribution, MNAR test, and correlations.')
+        ]})
+      ]}),
+      N({kick:'🧪 test results',title:'A real seasonal swing',what:'City-mean PM2.5 rises and falls with the calendar — the dry months top the ranking.',blocks:[
+        TBL(['Read','What it shows'],[['Daily city-mean','a clear rise/fall cycle across the year'],['Monthly mean','dry months rank highest'],['Implication','month + weather carry signal'],['Test rule','chronological split, not random']],3)
+      ]}),
+      N({kick:'📈 the chart',title:'See the rhythm',what:'A daily city-mean time series above a by-month box-plot of the seasonality.',blocks:[
+        CHART('fig2_pm25_temporal','City-mean PM2.5 over time above a by-month box-plot — the dry/wet cycle is unmistakable.')
+      ]}),
+      N({kick:'🧠 why',title:'Why seasonality forces a chronological split',what:'A random split would hand the model neighbouring days from the same season — leakage.',blocks:[
+        P("If train and test rows are drawn at random, a test day in July sits beside its own near-identical July neighbours in train — the model practically memorises the season. The chronological split ahead exists precisely to block that, by holding out a future window the model has never seen."),
+        CO('Seasonality is why the chronological split is non-negotiable — random splitting would leak the very rhythm we are trying to predict.','warn')
+      ]})
+    ]
+  })},
+  {label:'The 80% LST gap',blurb:'MNAR · clouds hide it',node:N({
+    kick:'⌨️ eda.py',
+    title:'The satellite is blind 80% of the time — and the blindness is informative',
+    what:'{{LST}} is present on only ~20% of site-days, and the gaps cluster in the rainy months — seasonal, not random ({{MNAR}}). Here is the proof: a {{Mann-Whitney}} U test on {{PM2.5}} for clear days (LST present, mean ≈42) versus cloudy days (LST absent, mean ≈37) shows cloudy days run <b>significantly lower</b>. So the missingness itself carries signal — the availability <b>flag</b> is justified, and a naive mean-fill would bias the model.',
+    blocks:[
+      STAT([{v:'~20%',k:'site-days with LST',c:'w'},{v:'≈42',k:'PM2.5 clear (LST present)',c:''},{v:'≈37',k:'PM2.5 cloudy (LST absent)',c:''},{v:'MNAR',k:'gap is informative',c:'bad'}]),
+      CO('Informative missingness must be <b>modelled</b>, never silently filled — this is what turns an 80%-missing defect into a feature.','warn')
+    ],
+    children:[
+      N({kick:'⌨️ the code',title:'The Mann-Whitney proof',what:'Split PM2.5 by LST presence, then run a rank-based U test — no normality assumed.',blocks:[
+        P("The test is the crux: PM2.5 on LST-present days versus LST-absent days, compared with {{Mann-Whitney}} U (rank-based, safe on a skewed target). A significant p means the gap is not random — it is {{MNAR}}."),
+        CODE('eda.py','91-94',"pres = df[df.lst_day_available == 1].pm2_5\nabsn = df[df.lst_day_available == 0].pm2_5\nu, pval = stats.mannwhitneyu(pres, absn, alternative=\"two-sided\")\nline(\"\")",'Mann-Whitney U on PM2.5, clear vs cloudy days — proves the missingness is informative.'),
+        N({kick:'📄 full script',title:'The whole EDA',what:'The MNAR test in full context — distribution, seasonality, and correlations around it.',blocks:[
+          FULLCODE('eda.py','Full Phase 1 EDA — the MNAR test sits among the distribution, seasonality, and correlation reads.')
+        ]})
+      ]}),
+      N({kick:'🧪 test results',title:'Cloudy days are significantly cleaner',what:'The clear-vs-cloudy PM2.5 gap, and the U-test verdict that makes the gap a feature.',blocks:[
+        STAT([{v:'≈42',k:'clear (LST present)',c:''},{v:'≈37',k:'cloudy (LST absent)',c:''},{v:'p<0.05',k:'significant difference',c:'bad'}]),
+        TBL(['Day type','LST','mean PM2.5','Reading'],[['Clear','present','≈42','higher pollution'],['Cloudy','absent','≈37','genuinely lower'],['U test','—','p < 0.05','missingness is informative']],2)
+      ]}),
+      N({kick:'📈 the chart',title:'See the gap two ways',what:'When the gap happens (by month) and what it means (clear-vs-cloudy PM2.5 distributions).',blocks:[
+        CHART('fig3_lst_gap_by_month','% of site-days with valid LST by month — coverage collapses in the rainy months, proving the gap is seasonal.'),
+        CHART('fig4_mnar_pm25_clear_vs_cloud','PM2.5 density on clear vs cloudy days — the cloudy curve sits visibly lower, the MNAR signal made visual.')
+      ]}),
+      N({kick:'🧠 why',title:'Why a gap can be a feature',what:'When missing means cloudy means cleaner, the absence itself is information.',blocks:[
+        P("A blank {{LST}} cell is not noise — it means cloud, and cloud means a genuinely lower-pollution day. Silently mean-filling would erase that and bias the model toward the clear-day average. Modelling the gap with a flag keeps the signal, so an 80%-missing column earns its place instead of being thrown out."),
+        CO('The MNAR proof is the pivot of Stage 1 — it converts the project\'s worst data defect into a legitimate, modelled feature.','good')
+      ]})
+    ]
+  })},
+  {label:'Correlations',blurb:'LST↔PM2.5 ≈ 0',node:N({
+    kick:'⌨️ eda.py',
+    title:'A flat line on the surface — but we do not stop there',
+    what:'A {{Spearman}} scan (rank-based, robust to the skew) ranks each feature against {{PM2.5}}: weather shows the stronger links, {{LST}} is weak — near zero. The disciplined move is to test {{LST}} rigorously <b>anyway</b>: a {{Spearman}} near zero only rules out a simple monotone relationship, and a weak linear signal can still matter to a non-linear model.',
+    blocks:[
+      DLB([['Method','{{Spearman}} rank correlation (robust to skew)'],['Weather','the stronger associations'],['{{LST}}','weak · near zero'],['Decision','still test LST rigorously downstream']]),
+      CO('A near-zero {{Spearman}} rules out a <i>simple monotone</i> link only — it cannot clear LST of mattering to a non-linear model.','warn')
+    ],
+    children:[
+      N({kick:'⌨️ the code',title:'The Spearman scan',what:'Rank-correlate every weather and LST feature against PM2.5, then sort to see what leads.',blocks:[
+        P("One {{Spearman}} call ranks the whole feature set against {{PM2.5}}; sorting it puts the strongest associations on top and leaves {{LST}} near the flat middle."),
+        CODE('eda.py','110-111',"feats = WEATHER + [\"lst_day_k\", \"lst_night_k\"]\ncorr_s = df[[\"pm2_5\"] + feats].corr(method=\"spearman\")[\"pm2_5\"].drop(\"pm2_5\").sort_values()",'Spearman scan, PM2.5 vs every feature — rank-based, robust to the right skew.'),
+        N({kick:'📄 full script',title:'The whole EDA',what:'The correlation scan in full context — distribution, seasonality, and the MNAR test before it.',blocks:[
+          FULLCODE('eda.py','Full Phase 1 EDA — the Spearman scan closes the study after distribution, seasonality, and the MNAR test.')
+        ]})
+      ]}),
+      N({kick:'🧪 test results',title:'Weather leads, LST is flat',what:'The rank scan puts weather features ahead and leaves LST near zero — weak, but not dismissed.',blocks:[
+        TBL(['Feature group','Spearman vs PM2.5','Verdict'],[['Weather','stronger (the leaders)','real associations'],['LST day/night','near zero','weak monotone link'],['Action','—','test LST anyway, non-linearly']],null)
+      ]}),
+      N({kick:'📈 the chart',title:'See it both ways',what:'The full Spearman matrix, plus the raw PM2.5-vs-LST scatter that shows the flat cloud.',blocks:[
+        CHART('fig5_correlation_heatmap','Spearman correlation matrix — weather lights up against PM2.5; the LST cells stay pale.'),
+        CHART('fig6_pm25_vs_lst','PM2.5 vs LST_Day scatter on clear site-days — a diffuse cloud, no clean monotone slope.')
+      ]}),
+      N({kick:'🧠 why',title:'Why we keep LST despite ≈ 0',what:'A near-zero rank correlation only kills a simple monotone link — not a non-linear one.',blocks:[
+        P("{{Spearman}} asks one narrow question: does {{PM2.5}} rise or fall <i>monotonically</i> with {{LST}}? A near-zero answer rules that out — but a tree model can exploit a kinked, threshold, or interaction effect that a rank correlation is blind to. Dropping {{LST}} here would pre-judge the capstone\'s core research question."),
+        CO('Letting a flat Spearman kill LST would answer the research question by assumption — so the rigorous path is to test it non-linearly, not retire it now.','good')
+      ]})
+    ]
+  })}
+]},
+{n:2,name:'Features & imputation',hue:'--s2',sections:[
+  {label:'3 gap-fills',blurb:'flag · temporal · RF',node:N({
+    title:'Three ways to fill the LST holes',
+    what:'{{LST|land-surface temperature}} is missing on ~80% of days (clouds — and the missingness is {{MNAR|missing not at random}}: it hides exactly when it is cloudy). Before we can ask "does LST help?", we have to decide what to put in the holes. We built three rival fills and let the data pick — because for 80%-missing MNAR data there is no textbook "right" answer, so comparing them IS the contribution.',
+    blocks:[
+      P('Three strategies, same {{XGBoost}} model, same split — only the fill changes:'),
+      DLB([
+        ['A — flag-only','LST → sentinel −1.0; the availability FLAG carries the "is it missing" signal. Respects MNAR by not inventing a value.'],
+        ['B — temporal + seasonal','Interpolate each site over time → fall back to that site\'s month-climatology mean → fall back to the global mean. The chosen fill.'],
+        ['C — RF-impute','A RandomForest (200 trees, depth 20) predicts LST from weather + location, missForest-style.']
+      ]),
+      CO('Verdict: XGB R² is 0.800 (flag) / 0.803 (temporal) / 0.796 (rf) — a spread of only <b>0.007</b>. The fill is not the bottleneck; the signal is. Chosen fill = temporal + seasonal.','good')
+    ],
+    children:[
+      N({kick:'⌨️ the code',title:'The three fills, side by side',
+        what:'Each strategy is one small function; B is the one that ships.',
+        blocks:[
+          P('Flag-only just drops a sentinel and leans on the FLAG column:'),
+          CODE('model.py','31–34','def s_flag(d):\n    o = d.copy()\n    for c in LST: o[c] = o[c].fillna(-1.0)\n    return o','−1.0 is impossible for a real temperature, so the tree can split it off cleanly.'),
+          P('Temporal + seasonal walks down a fallback ladder — interpolate, then site-month climatology, then global mean:'),
+          CODE('model.py','36–42','o[c] = o.groupby("site_id")[c].transform(lambda s: s.interpolate(limit_direction="both"))\no[c] = o[c].fillna(o.groupby(["site_id","month"])[c].transform("mean"))\no[c] = o[c].fillna(o[c].mean())','Never leaves a NaN; each rung is a coarser guess than the last.'),
+          P('RF-impute learns LST from the weather on the days it IS observed, then predicts the rest:'),
+          CODE('model.py','44–52','m = RandomForestRegressor(n_estimators=200, max_depth=20, n_jobs=-1, random_state=0)\nm.fit(kn[BASE], kn[c])\no.loc[o[c].isna(), c] = m.predict(o.loc[o[c].isna(), BASE])','missForest-style — but it can only learn the cloudy-day LST from clear-day patterns, which is exactly the MNAR trap.'),
+          N({kick:'📄 full script',title:'model.py — full source',
+            blocks:[P('The whole core experiment: three fills × two models, one shared split.'),FULLCODE('model.py')]})
+        ]}),
+      N({kick:'🧪 test results',title:'All three fills land within a rounding error',
+        what:'XGBoost R² on the held-out 20%, one fill at a time.',
+        blocks:[
+          TBL(['Fill strategy','XGB R²'],[
+            ['A — flag-only','0.800'],
+            ['B — temporal + seasonal','0.803'],
+            ['C — RF-impute','0.796']
+          ],1),
+          STAT([{v:'0.007',k:'R² spread across all 3',c:'b'},{v:'B',k:'chosen fill',c:'g'}]),
+          N({kick:'📈 raw table',title:'Every config × model run',
+            blocks:[P('The full grid — A and all three B fills, RF and XGB, RMSE/MAE/R²:'),CSVTBL('results.csv','Full results grid — the three fills appear as B_flag, B_temporal_seasonal, B_rf_impute.')]})
+        ]}),
+      N({kick:'📈 the chart',title:'The fills are visually indistinguishable',
+        what:'Bars for the same model barely move as the fill changes — that flatness is the finding.',
+        blocks:[CHART('fig_model_comparison','A vs the three B fills. The XGB bars sit on top of each other — swapping the imputation method does almost nothing.')]}),
+      N({kick:'🧠 why',title:'Why build three fills instead of one',
+        what:'Flowline: the question is "does LST help?", and the honest way to answer it is to make sure the answer cannot be blamed on a bad fill.',
+        blocks:[
+          P('If we picked one fill and LST looked weak, a reviewer would say "your imputation was the problem." By running three independent fills — a do-nothing flag, a time-series fill, and a learned RF fill — and getting the SAME answer, we close that escape hatch.'),
+          P('{{Adong 2025}} estimated PM2.5 from satellite signal alone and left gap-filling as future work. Doing that comparison head-on is a small methodological contribution of this capstone, not a side chore.'),
+          CO('A 0.007 spread across three very different fills is the signal to STOP tuning the imputation and start questioning whether LST carries any signal at all — which is exactly what the modelling ladder tackles next.','warn')
+        ]})
+    ]
+  })},
+  {label:'Feature sets',blurb:'M0 → M1 → M2',node:N({
+    title:'The ladder rungs — one lever at a time',
+    what:'To prove a feature CAUSES the gain, you cannot add everything at once. We define three nested feature sets and bolt on exactly one new lever per rung: location → +weather → +LST. Then the modelling ladder measures each rung\'s isolated jump.',
+    blocks:[
+      P('Three rungs, each a strict superset of the one below:'),
+      DLB([
+        ['M0 — location + season (4)','site_latitude, site_longitude, month, day_of_week'],
+        ['M1 — + weather (10)','+ temp_2m_K, dewpoint_2m_K, wind_u_10m_ms, wind_v_10m_ms, surface_pressure_Pa, precipitation_m'],
+        ['M2 — + LST (14)','+ lst_day_k, lst_night_k, lst_day_available, lst_night_available']
+      ]),
+      P('Jump M1−M0 = weather\'s true contribution; jump M2−M1 = LST\'s true contribution.')
+    ],
+    children:[
+      N({kick:'⌨️ the code',title:'The rungs are just column lists',
+        what:'The ladder is four named groups stacked into three feature sets.',
+        blocks:[
+          P('Location, calendar, weather and LST are declared as separate blocks so each rung adds exactly one:'),
+          CODE('ladder_eval.py','28–35','LOC = ["site_latitude","site_longitude"]; CAL = ["month","day_of_week"]\nWX = ["temp_2m_K","dewpoint_2m_K","wind_u_10m_ms","wind_v_10m_ms","surface_pressure_Pa","precipitation_m"]\nLST = ["lst_day_k","lst_night_k","lst_day_available","lst_night_available"]\nLADDER = {"M0_location_season": LOC+CAL, "M1_plus_weather": LOC+CAL+WX, "M2_plus_lst": LOC+CAL+WX+LST}','Because each rung is the previous one PLUS one block, the difference in score is attributable to that block alone.'),
+          N({kick:'📄 full script',title:'ladder_eval.py — full source',
+            blocks:[P('The full controlled experiment: three rungs × three honest split protocols.'),FULLCODE('ladder_eval.py')]})
+        ]}),
+      N({kick:'🧠 why',title:'Why add levers one at a time',
+        what:'Flowline: a controlled experiment changes one thing per step so the effect has only one possible cause.',
+        blocks:[
+          P('Think of it like a recipe test: if you add salt AND sugar AND lemon all at once and it tastes better, you cannot say which one helped. Add them one at a time and each taste-change has a single owner.'),
+          P('Stacking the features in strict nested order sets up the modelling ladder ahead to give a clean attribution: every R² jump is causally tied to the single lever that rung added — weather, then LST. That is what will let us cleanly say — once the ladder runs — whether weather is the gain {{Adong 2025}} skipped, and whether {{LST}} adds anything at all.')
+        ]})
+    ]
+  })}
+]}
+];
+
+/* ============================ render pyramid ============================ */
+const stack=document.getElementById('stack');
+const NODES={};
+STAGES.forEach((stg,si)=>{
+  const wrap=document.createElement('div'); wrap.className='barwrap';
+  const bar=document.createElement('div'); bar.className='bar'; bar.style.width=(100 - si*2.3)+'%';
+  const cap=document.createElement('div'); cap.className='seg cap'; cap.style.setProperty('--hue',`var(${stg.hue})`);
+  cap.innerHTML=`<div class="cn">Stage ${stg.n}</div><div class="ct">${stg.name}</div>`;
+  bar.appendChild(cap);
+  stg.sections.forEach((s,xi)=>{
+    const id=`s${si}_${xi}`;
+    const root={...s.node, _hue:stg.hue, _short:s.label, _crumb:`Stage ${stg.n} · ${s.label}`, kick:s.node.kick||stg.name, title:s.node.title||s.label};
+    NODES[id]=root;
+    const seg=document.createElement('div');
+    seg.className='seg'+(xi===stg.sections.length-1?' last':''); seg.style.setProperty('--hue',`var(${stg.hue})`);
+    seg.innerHTML=`<div class="st">${glow(s.label)}</div><div class="sb">${glow(s.blurb)}</div><span class="more">＋</span>`;
+    seg.addEventListener('click',()=>openRoot(id,stg.hue));
+    bar.appendChild(seg);
+  });
+  wrap.appendChild(bar);
+  if(si<STAGES.length-1){const c=document.createElement('div'); c.className='conn'; c.textContent='▼'; wrap.appendChild(c);}
+  stack.appendChild(wrap);
+});
+
+/* ============================ nested panel stack ============================ */
+const scrim=document.getElementById('scrim'), panelsEl=document.getElementById('panels');
+let PSTACK=[]; let HUE='--s2';
+function openRoot(id,hue){ HUE=hue; PSTACK=[]; panelsEl.innerHTML=''; scrim.classList.add('on'); pushNode(NODES[id]); }
+function closeAll(){ scrim.classList.remove('on'); PSTACK.forEach(p=>p.el.classList.remove('in')); setTimeout(()=>{panelsEl.innerHTML='';PSTACK=[];},260); }
+function popTo(i){ while(PSTACK.length-1>i){ const p=PSTACK.pop(); p.el.classList.remove('in'); const el=p.el; setTimeout(()=>el.remove(),260);} reflow(); }
+function reflow(){ const depth=PSTACK.length; PSTACK.forEach((p,i)=>{ p.el.style.right='0'; p.el.style.zIndex=100+i; p.el.classList.toggle('buried', i<depth-1); p.el.style.transform=`translateX(${(depth-1-i)*-48}px)`; }); }
+function crumbBar(){ return `<div class="pcrumb">`+PSTACK.map((p,i)=>`<span class="c ${i===PSTACK.length-1?'cur':''}" data-i="${i}">${esc(p.node._short||p.node.title)}</span>`+(i<PSTACK.length-1?'<span class="sep">▸</span>':'')).join('')+`</div>`; }
+/* drill lenses — kick icon → Flowline reading order (r), type accent (t→TC colour), plain tag */
+const TC={data:'#56c596',pic:'#e6b450',num:'#3fb8d4',why:'#b48ce0',code:'#6aa8ec',src:'#8a93a3',step:'#9aa0a8'};
+function lensMeta(kick){
+  const s=(kick||'').trim();
+  const has=(...e)=>e.some(x=>s.startsWith(x));
+  if(has('📚','🗺')) return {r:0,t:'data',tag:'the data'};
+  if(has('📈'))      return {r:1,t:'pic',tag:'the picture'};
+  if(has('🧪','📊','📝')) return {r:2,t:'num',tag:'the numbers'};
+  if(has('🧠'))      return {r:3,t:'why',tag:'the reasoning'};
+  if(has('⌨'))       return {r:4,t:'code',tag:'the code'};
+  if(has('📄'))      return {r:5,t:'src',tag:'full source'};
+  return {r:2.5,t:'step',tag:'go deeper'};
+}
+/* ---- normalize: promote stray N-nodes embedded in blocks into .children ---- */
+function normNode(n){
+  if(n && n.blocks && !n._norm){
+    const real=n.blocks.filter(b=>b&&b.t);
+    const stray=n.blocks.filter(b=>b&&!b.t&&(b.title||b.kick||b.blocks||b.children));
+    if(stray.length){ n.children=[...(n.children||[]),...stray]; n.blocks=real; }
+    n._norm=true;
+  }
+  return n;
+}
+/* ---- 39 AirQo sensor coordinates [lat,lng] → a little scatter map ---- */
+const SITES=[[0.3056,32.5164],[0.3177,32.5925],[0.3120,32.6203],[0.3652,32.7528],[0.3555,32.6734],[0.2908,32.5537],[0.2846,32.5888],[0.3391,32.5980],[0.3403,32.5505],[0.3025,32.6175],[0.3514,32.5955],[0.2325,32.5678],[0.2835,32.6050],[0.2978,32.5969],[0.2185,32.6221],[0.2722,32.5619],[0.3519,32.5726],[0.3502,32.5028],[0.3779,32.5320],[0.3841,32.6434],[0.3108,32.6548],[0.3731,32.6237],[0.3356,32.5729],[0.3638,32.5334],[0.3954,32.6280],[0.3238,32.5718],[0.3201,32.5718],[0.3291,32.6348],[0.3448,32.6385],[0.3507,32.7048],[0.2903,32.5086],[0.3615,32.6448],[0.2731,32.5863],[0.3075,32.6073],[0.3561,32.5882],[0.3570,32.6139],[0.3293,32.5670],[0.3034,32.5946],[0.3371,32.6103]];
+function sitesMapSVG(){
+  const W=360,H=210,pad=18;
+  const la=SITES.map(p=>p[0]), ln=SITES.map(p=>p[1]);
+  const laMin=Math.min.apply(null,la),laMax=Math.max.apply(null,la),lnMin=Math.min.apply(null,ln),lnMax=Math.max.apply(null,ln);
+  const sx=v=>pad+(v-lnMin)/(lnMax-lnMin)*(W-2*pad);
+  const sy=v=>pad+(laMax-v)/(laMax-laMin)*(H-2*pad);
+  const dots=SITES.map(p=>`<circle class="sdot" cx="${sx(p[1]).toFixed(1)}" cy="${sy(p[0]).toFixed(1)}" r="4.2"/>`).join('');
+  return `<div class="smap"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="39 AirQo sensor locations across Kampala"><rect class="sframe" x="1" y="1" width="${W-2}" height="${H-2}" rx="8"/>${dots}</svg><div class="smap-cap">Each dot = one of the 39 AirQo sensors, at its real location across greater Kampala (north is up, east is right).</div></div>`;
+}
+/* ---- drill cards: direct children render as INLINE accordions (expand down); their
+       own children render as overlay-trigger buttons (a deeper layer opens a panel) ---- */
+function drillCards(children){
+  const ord=children.map((c,i)=>({c:normNode(c),i,m:lensMeta(c.kick)})).sort((a,b)=>a.m.r-b.m.r);
+  const multi=ord.length>1;
+  const hdr=`<div class="drillhdr">explore · ${ord.length} ${multi?'points':'point'}</div>`;
+  const path=multi?`<div class="drillpath"><b>the path</b><span>${ord.map(o=>o.m.tag).join(' <span class="pa">→</span> ')}</span></div>`:'';
+  const cards=ord.map((o,pos)=>{
+    const c=o.c, m=o.m, ic=(c.kick||'▸').trim().split(/\s+/)[0];
+    const kids=(c.children&&c.children.length)?c.children:null;
+    const sub=kids?`<div class="subdrills"><div class="sublbl">goes deeper · opens a panel</div>`+kids.map((g,gi)=>{
+      const gm=lensMeta(g.kick), gic=(g.kick||'▸').trim().split(/\s+/)[0];
+      return `<button class="ovbtn" data-gi="${gi}" style="--tc:${TC[gm.t]}"><span class="ovi">${gic}</span><span class="ovt">${glow(g.title)}</span><span class="ovtag">${gm.tag}</span><span class="ovgo">open ↗</span></button>`;
+    }).join('')+`</div>`:'';
+    const body=`<div class="drill-body"><div class="drill-inner"><div class="drill-pad">${renderBlocks(c.blocks)}${sub}</div></div></div>`;
+    return `<div class="drill${pos===0?' open':''}" data-ci="${o.i}" data-type="${m.t}" style="--tc:${TC[m.t]}">`+
+      `<button class="drill-head">`+
+        (multi?`<span class="dnum">${pos+1}</span>`:'')+
+        `<span class="di">${ic}</span>`+
+        `<span class="dt"><span class="dn">${glow(c.title)}<span class="dtag">${m.tag}</span>${multi&&pos===0?'<span class="dstart">start here</span>':''}</span>`+
+        (c.what?`<span class="dd">${glow(c.what)}</span>`:'')+`</span>`+
+        `<span class="dchev">⌄</span>`+
+      `</button>`+body+`</div>`;
+  }).join('');
+  return hdr+path+`<div class="drills${multi?'':' single'}">${cards}</div>`;
+}
+function pushNode(node){
+  normNode(node);
+  const el=document.createElement('div'); el.className='panel'; el.style.setProperty('--hue',`var(${HUE})`);
+  PSTACK.push({el,node});
+  const depth=PSTACK.length, myIdx=depth-1;
+  const childHTML=(node.children&&node.children.length)?drillCards(node.children):'';
+  el.innerHTML=`<div class="ptab" title="back to this layer">${esc(node._short||node.title||'')}</div>${crumbBar()}<div class="phead">${depth>1?'<span class="pback" data-back>← back</span>':''}<span class="pclose" data-close>✕</span><div class="pkick">${glow(node.kick||'')}</div><div class="ptitle">${glow(node.title)}</div>${node.what?`<div class="pwhat">${glow(node.what)}</div>`:''}</div><div class="pbody">${renderBlocks(node.blocks)}${childHTML}</div>`;
+  panelsEl.appendChild(el);
+  el.querySelector('[data-close]').addEventListener('click',closeAll);
+  const back=el.querySelector('[data-back]'); if(back) back.addEventListener('click',()=>popTo(PSTACK.length-2));
+  el.querySelector('.ptab').addEventListener('click',()=>popTo(myIdx));
+  el.querySelectorAll('.pcrumb .c').forEach(c=>c.addEventListener('click',()=>popTo(+c.dataset.i)));
+  el.querySelectorAll('.drill-head').forEach(h=>h.addEventListener('click',()=>{ h.closest('.drill').classList.toggle('open'); }));
+  el.querySelectorAll('.ovbtn').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); const dr=b.closest('.drill'); const c=node.children[+dr.dataset.ci]; const g=c.children&&c.children[+b.dataset.gi]; if(g){ g._short=g._short||g.title; pushNode(g);} }));
+  requestAnimationFrame(()=>{ el.classList.add('in'); reflow(); });
+  el.querySelector('.pbody').scrollTop=0;
+}
+scrim.addEventListener('click',closeAll);
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if(PSTACK.length>1) popTo(PSTACK.length-2); else closeAll(); } });
+
+/* glossary as a root panel */
+function openGlossary(){ HUE='--s5'; PSTACK=[]; panelsEl.innerHTML=''; scrim.classList.add('on');
+  pushNode({kick:'reference',title:'Glossary',what:'Every shorthand on these panels, in plain English.',
+    blocks:Object.keys(GLOSSARY).sort().map(k=>CO(`<b>${k}</b> — ${GLOSSARY[k][0]}<br>${GLOSSARY[k][1]}`))}); }
+document.getElementById('glossBtn').addEventListener('click',openGlossary);
+/* table⇄chart toggle switcher */
+document.addEventListener('click',e=>{
+  const sb=e.target.closest('.tgl-src');
+  if(sb){const w=sb.closest('.tgl'),i=sb.dataset.i;
+    w.querySelectorAll('.tgl-src').forEach(x=>x.classList.toggle('on',x===sb));
+    w.querySelectorAll('.tgl-pane').forEach(p=>p.classList.toggle('on',p.dataset.i===i));return;}
+  const vb=e.target.closest('.tgl-view');
+  if(vb){const w=vb.closest('.tgl'),v=vb.dataset.v;
+    w.querySelectorAll('.tgl-view').forEach(x=>x.classList.toggle('on',x===vb));
+    w.querySelectorAll('.tgl-pane .tbl-face').forEach(f=>f.classList.toggle('on',v==='tbl'));
+    w.querySelectorAll('.tgl-pane .cht-face').forEach(f=>f.classList.toggle('on',v==='cht'));}
+});
+
+/* ============================ glossary hover ============================ */
+const tip=document.getElementById('tip');
+document.body.addEventListener('mouseover',e=>{const t=e.target.closest('.term'); if(!t)return; const g=GLOSSARY[t.dataset.k]; if(!g)return;
+  tip.innerHTML=`<b>${g[0]}</b><span>${g[1]}</span>`; tip.style.display='block';
+  const r=t.getBoundingClientRect(); let left=Math.min(innerWidth-tip.offsetWidth-12,Math.max(12,r.left)); let top=r.bottom+8;
+  if(top+tip.offsetHeight>innerHeight-8) top=r.top-tip.offsetHeight-8; tip.style.left=left+'px'; tip.style.top=top+'px';});
+document.body.addEventListener('mouseout',e=>{if(e.target.closest('.term'))tip.style.display='none';});
+
+/* ============================ theme toggle ============================ */
+const THEMES=[{id:'graphite',name:'Graphite',sw:['#23262d','#36b4c8','#ffce5a']},{id:'lakehouse',name:'Lakehouse',sw:['#0e1016','#5a9fe0','#ec7a52']}];
+function buildThemes(){ const w=document.getElementById('themeChips'); w.innerHTML='';
+  let cur=document.body.getAttribute('data-theme')||'lakehouse';
+  try{const s=localStorage.getItem('pyramidTheme'); if(s){cur=s; document.body.setAttribute('data-theme',cur);}}catch(e){}
+  THEMES.forEach(t=>{ const c=document.createElement('span'); c.className='tchip'+(t.id===cur?' on':''); c.dataset.theme=t.id;
+    c.innerHTML='<span class="sw">'+t.sw.map(s=>`<b style="background:${s}"></b>`).join('')+'</span>'+t.name;
+    c.addEventListener('click',()=>{document.body.setAttribute('data-theme',t.id);
+      document.querySelectorAll('.tchip').forEach(x=>x.classList.toggle('on',x===c));
+      try{localStorage.setItem('pyramidTheme',t.id);}catch(e){}});
+    w.appendChild(c); }); }
+buildThemes();
+document.querySelectorAll('.htext .sub').forEach(el=>el.innerHTML=glow(el.innerHTML));
+</script>
+</body>
+</html>

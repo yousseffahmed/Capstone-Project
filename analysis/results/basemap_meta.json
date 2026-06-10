@@ -1,0 +1,16 @@
+{
+  "zoom": 12,
+  "tile_size": 256,
+  "x0_tile": 2417,
+  "y0_tile": 2043,
+  "img_w": 1280,
+  "img_h": 768,
+  "style": "light",
+  "bbox": {
+    "S": 0.19024868,
+    "N": 0.42372632,
+    "W": 32.462803040000004,
+    "E": 32.792777959999995
+  },
+  "attribution": "\u00a9 OpenStreetMap contributors \u00a9 CARTO"
+}

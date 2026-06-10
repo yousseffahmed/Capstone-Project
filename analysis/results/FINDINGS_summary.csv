@@ -1,0 +1,19 @@
+metric,setup,honest_test,score,note
+NOW,blind pooled,leave-sites-out (cat=full sig),0.316,the 3rd-cap collapse
+NOW,+category,leave-sites-out (cat=full sig),0.481,the reframe win
+NOW,+category,leave-sites-out (cat=60d deploy),0.433,realistic cold-start
+NOW,MoE,leave-sites-out (cat=60d deploy),0.298,collapses — killed
+NOW,+category,leave-CATEGORY-out,-0.217,ceiling: unseen regime
+NOW,+geodata only (0 obs),leave-sites-out,0.421,zero-deploy lever
+NOW,+category+geodata,leave-sites-out,0.547,best + most stable
+NOW,XGBoost (+cat),leave-sites-out,0.481,model bake-off
+NOW,RandomForest (+cat),leave-sites-out,0.529,model bake-off
+NOW,LightGBM (+cat),leave-sites-out,0.469,model bake-off
+NOW,CatBoost (+cat),leave-sites-out,0.465,model bake-off
+FUTURE,+1.0d: persistence=0.34,purged chronological,0.506,best=LSTM (0.51)
+FUTURE,+2.0d: persistence=0.08,purged chronological,0.474,best=LSTM (0.47)
+FUTURE,+3.0d: persistence=0.11,purged chronological,0.477,best=LSTM (0.48)
+FUTURE,+4.0d: persistence=0.13,purged chronological,0.451,best=LSTM (0.45)
+FUTURE,+5.0d: persistence=0.17,purged chronological,0.431,best=LSTM (0.43)
+FUTURE,+6.0d: persistence=0.09,purged chronological,0.431,best=LSTM (0.43)
+FUTURE,+7.0d: persistence=0.01,purged chronological,0.432,best=LSTM (0.43)
