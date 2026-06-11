@@ -194,4 +194,20 @@ const STAGES=[
   })}
 ]}
 
+,{n:6,name:'Final audit guardrail',hue:'--s5',sections:[
+  {label:'What the tool should claim',blurb:'accepted k=4 · LSTM · challengers only',node:N({
+    kick:'✅ final honest audit',
+    title:'The deployable tool stays on the accepted production path',
+    what:'The audit sharpened the defense, not the production setting. k=6 is <b>meaningful but fragile</b>; k=6 full-history is a <b>non-deployable upper bound</b>; deployable k=6 improves with <b>30-45 days</b> but does <b>not</b> beat accepted k=4. So the browser-facing tool should still present <b>k=4 for NOW/safety</b> and the <b>LSTM as the FUTURE headline</b>.',
+    blocks:[
+      TBL(['claim','status'],[
+        ['accepted production remains k=4 for NOW/safety','keep'],
+        ['LSTM remains headline FUTURE forecaster','keep'],
+        ['RF / rolling-7 persistence','challenger baselines only'],
+        ['k=6 full-history','oracle/non-deployable upper bound']],null),
+      CO('What not to claim: k=6 is the new production model; RF beats LSTM overall; random split is real-world performance; full-history category assignment is deployable at a new site.','warn')
+    ]
+  })}
+]}
+
 ];

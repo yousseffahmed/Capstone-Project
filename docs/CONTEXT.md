@@ -54,6 +54,18 @@ they read `../analysis` + `../docs`, write `../pages` + `../index.html`). Fixed 
   links whether a page sits at root or in `pages/`, and hides itself inside the switcher's iframe).
 - AOD is **not** a lever/roadmap item here; it appears only describing the Adong-2025 precedent.
 - LSTM numbers are locked (re-train in its own process to refresh).
+- 2026-06-10 honest improvement audit added `analysis/improve_honest_now.py` and
+  `analysis/improve_honest_future.py`, with outputs in `analysis/results/*improvement*` plus
+  `model_improvement_report.md`. Conclusion: keep the finalized k=4/LSTM recommendations for now;
+  k=6 remains a diagnostic/research lead, not a global replacement, because the strongest k=6 result
+  uses full held-out PM2.5 history and deployable variants did not beat the accepted baseline.
+- 2026-06-10 follow-up diagnosis added `analysis/diagnose_k6_deployability.py` and
+  `analysis/future_same_row_benchmark.py`. Finding: k=6 splits meaningful but tiny regimes; 30-45d
+  windows improve over 60d but still do not beat accepted k=4. FUTURE same-row benchmark makes RF and
+  roll7 persistence strong challengers, especially at +7, but not a finalized LSTM replacement.
+- Final audit communication artifacts live in `analysis/results/final_model_decision_table.csv`,
+  `professor_summary.md`, and `presentation_talking_points.md`. These are the concise materials to use
+  when defending why the project did **not** replace the production pipeline after the audit.
 - 280 MB of raw source data + the 3rd-cap pipeline + superseded artifacts were quarantined to
   `../../trash/2026-06-07-cap4-finalize/` (recoverable); the kept `data/merged_kampala_complete.csv`
   is all the analysis needs.

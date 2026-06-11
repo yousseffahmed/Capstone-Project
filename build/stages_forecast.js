@@ -91,4 +91,16 @@ const STAGES=[
   })}
 ]}
 
+,{n:7,name:'Final audit guardrail',hue:'--s5',forecast:true,fade:0.50,eta:'defense',sections:[
+  {label:'What not to overclaim',blurb:'challengers only · production unchanged',node:N({
+    kick:'✅ final honest audit',
+    title:'The roadmap keeps the accepted model and adds challengers honestly',
+    what:'The audit answers a defense question: did any later experiment justify replacing production? <b>No.</b> k=6 is meaningful but fragile; k=6 full-history is a <b>non-deployable upper bound</b>; deployable k=6 improves with <b>30-45 days</b> but still does <b>not</b> beat accepted k=4. For FUTURE, RF and rolling-7 are real challengers, but the <b>LSTM remains the headline</b>.',
+    blocks:[
+      DLB([['NOW/safety','accepted production remains k=4'],['FUTURE','LSTM remains headline'],['Challengers','RF and rolling-7 persistence enter the bakeoff only'],['Do not claim','k=6 production · RF beats LSTM overall · random split as real-world · full-history category deployable']]),
+      CO('This is a stronger final capstone: the audit proves restraint, not just score-chasing.','good')
+    ]
+  })}
+]}
+
 ];

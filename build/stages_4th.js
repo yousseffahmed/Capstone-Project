@@ -326,5 +326,27 @@ const STAGES=[
       CO('The {{R²}} becomes a colour a planner can act on — and the never-instrumented gaps between sensors inherit the nearest area’s model. This is the bridge from “an honest result” to “a tool on a desk”.','good')
     ]
   })}
+]},
+
+{n:10,name:'Final audit guardrail',hue:'--s5',sections:[
+  {label:'Do not overclaim',blurb:'k=4 stays · LSTM stays · challengers only',node:N({
+    kick:'✅ final honest improvement audit',
+    title:'The audit strengthens the capstone by refusing a fake replacement',
+    what:'The last audit asked whether any higher-looking score justified replacing production. <b>No.</b> k=6 is <b>meaningful but fragile</b>; k=6 full-history is a <b>non-deployable upper bound</b>; deployable k=6 improves with <b>30-45 days</b> but still does <b>not</b> beat accepted k=4. Accepted production remains <b>k=4 for NOW/safety</b>. For FUTURE, the <b>LSTM remains the headline</b>; RF and rolling-7 persistence are <b>challenger baselines only</b>.',
+    blocks:[
+      TBL(['candidate','honest result','decision'],[
+        ['NOW k=4 accepted baseline','≈0.564 R² · safety exact 0.680','keep production'],
+        ['NOW k=6 full-history','≈0.56-0.58 R²','non-deployable upper bound'],
+        ['NOW k=6 deployable 45d','0.506 R²','challenger only'],
+        ['FUTURE LSTM','best/tied across most same-row horizons','keep headline'],
+        ['FUTURE RF / rolling-7','strong at +3/+7','challenger baselines only']],null),
+      CO('What not to claim: k=6 is production; RF beats LSTM overall; random split is real-world performance; or full-history category assignment is deployable at a new site.','warn')
+    ],
+    children:[
+      N({kick:'📊 decision table',title:'The final audit decision record',what:'One concise table for defense.',blocks:[
+        CSVTBL('final_model_decision_table.csv','Final model decision table — candidate, honest metric, deployability, decision, and reason.')
+      ]})
+    ]
+  })}
 ]}
 ];

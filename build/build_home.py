@@ -157,6 +157,9 @@ LAND = f"""<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
 
  <div class="note"><b>The one honest limit, stated plainly:</b> a few places (e.g. <b>site_54</b>, the Kalerwe market node) pollute from a <i>local land-use source</i> no free map feature can see — there the map under-reads, and a cheap confirming sensor is needed. That boundary is itself a finding, not a bug.</div>
 
+ <div class="sec">Final honest improvement audit</div>
+ <div class="note"><b>No production replacement after the audit.</b> k=6 is <b>meaningful but fragile</b>: it splits finer pollution regimes, but its strongest full-history score is a <b>non-deployable upper bound</b>. Deployable k=6 improves with a <b>30-45 day</b> early window but still does <b>not</b> beat accepted k=4, so accepted production remains <b>k=4 for NOW/safety</b>. For FUTURE, <b>LSTM remains the headline</b>; RandomForest and rolling-7 persistence are <b>challenger baselines only</b>. What not to claim: k=6 is production, RF beats LSTM overall, random split is real-world performance, or full-history category assignment is deployable.</div>
+
  <div class="foot">
   <b>Honest methodology:</b> every headline number is out-of-sample — NOW = leave-sites-out (a brand-new place), FUTURE = chronological (the real future). Leaky random-split numbers are labelled as such. Negatives are kept, not buried.<br>
   <b>Scope:</b> 39 AirQo sensors · 13,944 site-days · Kampala 2019–2020. Extends Adong 2025 (the precedent, which used satellite AOD alone). Basemap © OpenStreetMap © CARTO.<br>

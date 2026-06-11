@@ -73,5 +73,21 @@ const STAGES=[
       ]})
     ]
   })}
+]},
+
+{n:3,name:'Final audit',hue:'--s5',sections:[
+  {label:'Keep production unchanged',blurb:'k=6 upper bound · k=4 stays accepted',node:N({
+    kick:'✅ honest improvement audit',
+    title:'We did not replace the model just because one score looked better',
+    what:'The final audit tested whether the stronger-looking k=6 and RF/rolling-7 results were honest enough to replace production. Answer: <b>no production replacement</b>. k=6 is meaningful but fragile; its full-history score is a <b>non-deployable upper bound</b>. Deployable k=6 improves with <b>30-45 days</b> but still does <b>not</b> beat accepted k=4.',
+    blocks:[
+      STAT([{v:'k=4',k:'accepted NOW/safety production remains',c:'g'},{v:'0.506',k:'best deployable k=6 at 45d — below k=4',c:'w'},{v:'LSTM',k:'headline FUTURE forecaster remains',c:'g'}]),
+      TBL(['candidate','honest result','decision'],[
+        ['k=6 full-history','≈0.56-0.58 R²','oracle upper bound only'],
+        ['k=6 deployable 45d','0.506 R²','challenger, not replacement'],
+        ['RF / rolling-7 FUTURE','strong at some horizons','challenger baselines only']],null),
+      CO('What not to claim: k=6 is production; RF beats LSTM overall; random split is real-world performance; or full-history category assignment is deployable at a new site.','warn')
+    ]
+  })}
 ]}
 ];

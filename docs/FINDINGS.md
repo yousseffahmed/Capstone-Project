@@ -6,6 +6,48 @@ from `analysis/` (scripts + `results/` CSVs) and traceable in `DECISION_LOG.md`.
 
 ---
 
+## ✅ FINAL HONEST IMPROVEMENT AUDIT (2026-06-10) — no production replacement
+
+After the main capstone was finalized, we ran a deliberately conservative improvement audit. The goal was
+not to chase a higher score, but to ask whether any stronger-looking result was **honest, deployable, and
+worth replacing the accepted pipeline**.
+
+**Bottom line:** no production replacement is justified. The accepted **k=4 categorize-then-predict NOW
+pipeline** and the **LSTM FUTURE forecaster** remain the defensible headline models.
+
+| task | candidate | honest result | deployable? | decision |
+|---|---:|---:|---|---|
+| NOW | accepted k=4 baseline | R² ≈ **0.56** | yes | **keep** |
+| NOW | k=6 full-history | R² ≈ **0.56–0.58** | **no — oracle upper bound** | reject as production |
+| NOW | k=6 best deployable window | R² **0.506** at 45d | short-deploy | challenger only |
+| FUTURE | LSTM | best/tied across most same-row horizons | yes | **keep headline** |
+| FUTURE | RandomForest / rolling-7 | strong at +3/+7 | yes | challenger baselines |
+
+**What k=6 taught us.** k=6 is **meaningful but fragile**. It splits real pollution regimes by PM2.5
+level, volatility, ventilation, and humidity. But with only 39 sites it creates tiny groups, including a
+singleton extreme cluster and a 3-site stagnant/humid cluster. That makes the full-history k=6 category a
+useful scientific upper bound, not a production setting.
+
+**Why the full-history score is not deployable.** k=6 full-history assigns the held-out site using its
+complete PM2.5 behavior. A real new site does not have that history. Once restricted to deployable
+information, k=6 improves with a **30–45 day** early deploy window, but still does **not** beat accepted k=4.
+Soft category probabilities, centroid-distance features, and an early-window+geodata classifier did not
+close the gap.
+
+**Future forecast audit.** On identical rows, RandomForest and rolling-7 persistence are valid challengers:
+RF ties/slightly beats LSTM at some middle/long horizons, and rolling-7 is strong at +7. But RF does **not**
+beat LSTM overall; LSTM remains strongest at +1 and +5 and remains the headline forecaster. RF/rolling-7
+should be added as formal challenger baselines, not claimed as replacements.
+
+**What not to claim:** do **not** claim k=6 is the new production model; do **not** claim RF beats LSTM
+overall; do **not** claim random-split performance is real-world performance; and do **not** claim
+full-history category assignment is deployable at a new site.
+
+Artifacts: `analysis/results/model_improvement_report.md` · `final_model_decision_table.csv` ·
+`professor_summary.md` · `presentation_talking_points.md`.
+
+---
+
 ## ⭐ ROUND 3 (2026-06-07) — SAFETY-TIER FRAMING (the current capstone scope)
 
 **Scope sharpened:** the deliverable is a tool that tells an urban planner an area's **safety tier**

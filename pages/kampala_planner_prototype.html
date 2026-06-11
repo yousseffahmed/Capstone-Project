@@ -66,6 +66,7 @@
   <div class="eyebrow">Smart City Capstone · Kampala PM2.5 <span class="proto">PROTOTYPE</span></div>
   <h1>Kampala Planner — Air-Quality Safety Tool</h1>
   <div class="sub">A working prototype of the deployable tool: a <b>safety-tier map</b> of every monitored area (now and forecast), and a <b>predict-a-location</b> page that scores a new place from free inputs. Honest, leave-sites-out predictions — built to be deployed properly later.</div>
+  <div class="note">Final audit guardrail: k=6 is meaningful but fragile; k=6 full-history is a non-deployable upper bound; deployable k=6 does not beat accepted k=4. Accepted production remains k=4 for NOW/safety, LSTM remains headline for FUTURE, and RF/rolling-7 are challenger baselines only. What not to claim: k=6 is the new production model, RF beats LSTM overall, random splits are real-world performance, or full-history category assignment is deployable at a new site.</div>
  </header>
  <nav><button class="tab on" data-t="map">🗺 Safety Map</button><button class="tab" data-t="predict">🎛 Predict a Location</button></nav>
 

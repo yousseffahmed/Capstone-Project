@@ -1,0 +1,7 @@
+task,method,target_coverage,coverage,width,config,folds
+NOW,group_conformal_calibration_sites,0.9,0.8819084196202358,44.81439004529347,k=6 window60 base_cat hgb_l2,"[0.717, 0.943, 0.992, 0.91, 0.847]"
+FUTURE +1,chronological_split_conformal,0.9,0.8795768917819365,33.6112911296838,rf 42 features,chronological
+FUTURE +2,chronological_split_conformal,0.9,0.8918128654970761,34.99048868336194,rf 47 features,chronological
+FUTURE +3,chronological_split_conformal,0.9,0.9062103929024081,36.89066709634717,rf 10 features,chronological
+FUTURE +5,chronological_split_conformal,0.9,0.8783783783783784,34.38519828648501,rf 10 features,chronological
+FUTURE +7,chronological_split_conformal,0.9,0.8665188470066519,34.94253106374587,rf 10 features,chronological
